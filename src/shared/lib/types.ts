@@ -69,6 +69,13 @@ export interface Message {
   is_read: boolean
   read_at?: string
   user?: User
+  metadata?: {
+    wazzup_message_id?: string
+    wazzup_status?: string
+    status_updated_at?: string
+    status_details?: any
+    [key: string]: any
+  }
 }
 
 // Типы для создания и обновления чатов

@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { chatApi } from '@/entities/chat/api/chatApi'
 import { useToast } from 'primevue/usetoast'
+import { uploadFileToServer, getMediaTypeFromFile } from '@/shared/utils/fileUpload'
 
 export function useFileUpload() {
   const toast = useToast()
@@ -37,7 +38,8 @@ export function useFileUpload() {
     files: Array<{preview?: string, caption?: string, id?: string} & File>,
     fileType: string,
     chatId: number,
-    onSuccess?: () => void
+    onSuccess?: () => void,
+    chatType?: string
   ) => {
     if (!chatId || !files.length) return
 
@@ -57,11 +59,39 @@ export function useFileUpload() {
           messageType = 'audio'
         }
 
-        const res = await chatApi.sendMessage(chatId, {
-          message: message,
-          type: messageType,
-          file: file
-        })
+        // Если чат Wazzup24, используем специальный API для отправки медиа
+        if (chatType === 'wazzup') {
+          try {
+            // Сначала загружаем файл на сервер и получаем публичный URL
+            const mediaUrl = await uploadFileToServer(file)
+            
+            // Определяем тип медиа для Wazzup24
+            const wazzupMediaType = getMediaTypeFromFile(file)
+            
+            // Отправляем медиа через Wazzup24 API
+            const res = await chatApi.sendWazzupMedia(chatId, {
+              media_url: mediaUrl,
+              media_type: wazzupMediaType,
+              caption: message,
+              file_name: file.name
+            })
+          } catch (uploadError) {
+            console.error('Ошибка загрузки файла для Wazzup24:', uploadError)
+            // Fallback: используем стандартный метод загрузки
+            const res = await chatApi.sendMessage(chatId, {
+              message: message,
+              type: messageType,
+              file: file
+            })
+          }
+        } else {
+          // Обычная отправка для других типов чатов
+          const res = await chatApi.sendMessage(chatId, {
+            message: message,
+            type: messageType,
+            file: file
+          })
+        }
       }
 
     // НЕ закрываем превью автоматически здесь - это делает родительский компонент

@@ -248,6 +248,9 @@ const handleFileSendWrapper = async (files: Array<{preview?: string, caption?: s
     return
   }
 
+  // Определяем тип чата (пока что проверяем наличие номера телефона для Wazzup24)
+  const chatType = selectedChat.value.client_phone ? 'wazzup' : 'regular'
+
   await handleFileSend(files, fileType, selectedChat.value.id, () => {
     loadChatMessages(selectedChat.value!.id)
     // Превью закроется автоматически через FilePreview.closePreview()
@@ -255,7 +258,7 @@ const handleFileSendWrapper = async (files: Array<{preview?: string, caption?: s
   setTimeout(() => {
       scrollToBottom()
     }, 200)
-  })
+  }, chatType)
 
   // Сигнализируем об успешной отправке (для отключения fallback в FilePreview)
   ;(window as unknown as { fileSendCompleted: boolean }).fileSendCompleted = true

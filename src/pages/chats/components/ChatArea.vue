@@ -103,17 +103,48 @@
 
               <!-- Изображение -->
               <div v-else-if="message.type === 'image' && message.file_path" class="mb-2">
-                <img
-                  :src="message.file_path"
-                  :alt="message.file_name || 'Изображение'"
-                  class="max-w-full h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                  style="max-height: 250px; width: auto; object-fit: contain;"
-                  @click="$emit('openImagePreview', message.file_path)"
-                  @error="handleImageError"
-                />
-                <p v-if="message.file_name" class="text-xs text-gray-500 mt-1">{{ message.file_name }}</p>
-                <p v-if="message.file_size" class="text-xs text-gray-400 mt-1">{{ formatFileSize(message.file_size) }}</p>
-                <p v-if="message.message" class="text-xs text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap">{{ message.message }}</p>
+                <!-- Одиночное изображение -->
+                <div v-if="!isPartOfImageGroup(message)" class="single-image">
+                  <img
+                    :src="message.file_path"
+                    :alt="message.file_name || 'Изображение'"
+                    class="max-w-full h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                    style="max-height: 250px; width: auto; object-fit: contain;"
+                    @click="$emit('openImagePreview', message.file_path)"
+                    @error="handleImageError"
+                  />
+                  <p v-if="message.message" class="text-xs text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap">{{ message.message }}</p>
+                </div>
+                
+                <!-- Группа изображений (первое изображение в группе) -->
+                <div v-else-if="isFirstInImageGroup(message)" class="image-group">
+                  <div class="grid grid-cols-2 gap-2">
+                    <div 
+                      v-for="(imgMsg, index) in getImageGroup(message)" 
+                      :key="imgMsg.id"
+                      class="relative group"
+                      :class="getImageGroupGridClass(getImageGroup(message), index)"
+                    >
+                      <img
+                        :src="imgMsg.file_path"
+                        :alt="imgMsg.file_name || 'Изображение'"
+                        class="w-full h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity object-cover"
+                        :style="getImageGroupStyle(getImageGroup(message), index)"
+                        @click="$emit('openImagePreview', imgMsg.file_path)"
+                        @error="handleImageError"
+                      />
+                      <!-- Показать количество оставшихся изображений для последнего элемента -->
+                      <div 
+                        v-if="index === 3 && getImageGroup(message).length > 4"
+                        class="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center cursor-pointer hover:bg-opacity-60 transition-all"
+                        @click="$emit('openImagePreview', imgMsg.file_path)"
+                      >
+                        <span class="text-white font-semibold text-lg">+{{ getImageGroup(message).length - 4 }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <p v-if="message.message" class="text-xs text-gray-600 dark:text-gray-300 mt-2 whitespace-pre-wrap">{{ message.message }}</p>
+                </div>
               </div>
 
               <!-- Видео -->
@@ -126,7 +157,6 @@
                 >
                   Ваш браузер не поддерживает видео.
                 </video>
-                <p v-if="message.file_name" class="text-xs text-gray-500 mt-1">{{ message.file_name }}</p>
                 <p v-if="message.message" class="text-xs text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap">{{ message.message }}</p>
               </div>
 
@@ -206,10 +236,14 @@
           </div>
 
           <div class="flex flex-col items-end">
-            <!-- Имя сотрудника и время -->
+            <!-- Имя сотрудника, время и статус -->
             <div class="mb-1 text-xs text-gray-500 dark:text-gray-400 flex items-center gap-2">
               <span>{{ formatTime(message.created_at) }}</span>
               <span class="font-medium">{{ getStaffName(message) }}</span>
+              <!-- Статус доставки -->
+              <div v-if="(message as any).metadata?.wazzup_status" class="flex items-center gap-1">
+                <i :class="getDeliveryStatusIcon((message as any).metadata.wazzup_status)" :title="getDeliveryStatusText((message as any).metadata.wazzup_status)"></i>
+              </div>
             </div>
 
             <!-- Сообщение сотрудника -->
@@ -219,17 +253,48 @@
 
               <!-- Изображение -->
               <div v-else-if="message.type === 'image' && message.file_path" class="mb-2">
-                <img
-                  :src="message.file_path"
-                  :alt="message.file_name || 'Изображение'"
-                  class="max-w-full h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                  style="max-height: 250px; width: auto; object-fit: contain;"
-                  @click="$emit('openImagePreview', message.file_path)"
-                  @error="handleImageError"
-                />
-                <p v-if="message.file_name" class="text-xs text-white opacity-75 mt-1">{{ message.file_name }}</p>
-                <p v-if="message.file_size" class="text-xs text-white opacity-50 mt-1">{{ formatFileSize(message.file_size) }}</p>
-                <p v-if="message.message" class="text-xs text-white opacity-90 mt-1 whitespace-pre-wrap">{{ message.message }}</p>
+                <!-- Одиночное изображение -->
+                <div v-if="!isPartOfImageGroup(message)" class="single-image">
+                  <img
+                    :src="message.file_path"
+                    :alt="message.file_name || 'Изображение'"
+                    class="max-w-full h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                    style="max-height: 250px; width: auto; object-fit: contain;"
+                    @click="$emit('openImagePreview', message.file_path)"
+                    @error="handleImageError"
+                  />
+                  <p v-if="message.message" class="text-xs text-white opacity-90 mt-1 whitespace-pre-wrap">{{ message.message }}</p>
+                </div>
+                
+                <!-- Группа изображений (первое изображение в группе) -->
+                <div v-else-if="isFirstInImageGroup(message)" class="image-group">
+                  <div class="grid grid-cols-2 gap-2">
+                    <div 
+                      v-for="(imgMsg, index) in getImageGroup(message)" 
+                      :key="imgMsg.id"
+                      class="relative group"
+                      :class="getImageGroupGridClass(getImageGroup(message), index)"
+                    >
+                      <img
+                        :src="imgMsg.file_path"
+                        :alt="imgMsg.file_name || 'Изображение'"
+                        class="w-full h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity object-cover"
+                        :style="getImageGroupStyle(getImageGroup(message), index)"
+                        @click="$emit('openImagePreview', imgMsg.file_path)"
+                        @error="handleImageError"
+                      />
+                      <!-- Показать количество оставшихся изображений для последнего элемента -->
+                      <div 
+                        v-if="index === 3 && getImageGroup(message).length > 4"
+                        class="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center cursor-pointer hover:bg-opacity-60 transition-all"
+                        @click="$emit('openImagePreview', imgMsg.file_path)"
+                      >
+                        <span class="text-white font-semibold text-lg">+{{ getImageGroup(message).length - 4 }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <p v-if="message.message" class="text-xs text-white opacity-90 mt-2 whitespace-pre-wrap">{{ message.message }}</p>
+                </div>
               </div>
 
               <!-- Видео -->
@@ -242,7 +307,28 @@
                 >
                   Ваш браузер не поддерживает видео.
                 </video>
-                <p v-if="message.file_name" class="text-xs text-white opacity-75 mt-1">{{ message.file_name }}</p>
+                <p v-if="message.message" class="text-xs text-white opacity-90 mt-1 whitespace-pre-wrap">{{ message.message }}</p>
+              </div>
+
+              <!-- Аудио -->
+              <div v-else-if="message.type === 'audio' && message.file_path" class="mb-2">
+                <div class="flex items-center gap-3 p-3 bg-purple-600 rounded-lg border border-purple-500">
+                  <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <i class="pi pi-volume-up text-2xl text-white"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-white">{{ message.file_name || 'Аудио сообщение' }}</p>
+                    <p v-if="message.file_size" class="text-xs text-white opacity-75">{{ formatFileSize(message.file_size) }}</p>
+                    <audio
+                      :src="message.file_path"
+                      controls
+                      class="w-full mt-2"
+                      style="max-width: 100%;"
+                    >
+                      Ваш браузер не поддерживает аудио.
+                    </audio>
+                  </div>
+                </div>
                 <p v-if="message.message" class="text-xs text-white opacity-90 mt-1 whitespace-pre-wrap">{{ message.message }}</p>
               </div>
 
@@ -627,4 +713,113 @@ const emit = defineEmits([
   'chatClosed',
   'containerReady'
 ])
+
+// Методы для отображения статусов доставки
+const getDeliveryStatusIcon = (status: string) => {
+  switch (status) {
+    case 'sent':
+      return 'pi pi-check text-blue-400'
+    case 'delivered':
+      return 'pi pi-check-double text-gray-400'
+    case 'read':
+      return 'pi pi-check-double text-blue-500'
+    case 'failed':
+      return 'pi pi-times text-red-500'
+    default:
+      return 'pi pi-clock text-gray-400'
+  }
+}
+
+const getDeliveryStatusText = (status: string) => {
+  switch (status) {
+    case 'sent':
+      return 'Отправлено'
+    case 'delivered':
+      return 'Доставлено'
+    case 'read':
+      return 'Прочитано'
+    case 'failed':
+      return 'Ошибка доставки'
+    default:
+      return 'Обрабатывается'
+  }
+}
+
+// Методы для работы с группами изображений
+const isPartOfImageGroup = (message: Message) => {
+  if (message.type !== 'image') return false
+  
+  // Ищем соседние изображения в течение 30 секунд
+  const currentTime = new Date(message.created_at).getTime()
+  const timeWindow = 30 * 1000 // 30 секунд
+  
+  const nearbyImages = props.messages.filter((msg, index) => {
+    if (msg.type !== 'image' || msg.id === message.id) return false
+    const msgTime = new Date(msg.created_at).getTime()
+    return Math.abs(msgTime - currentTime) <= timeWindow
+  })
+  
+  return nearbyImages.length > 0
+}
+
+const isFirstInImageGroup = (message: Message) => {
+  if (!isPartOfImageGroup(message)) return false
+  
+  const currentTime = new Date(message.created_at).getTime()
+  const timeWindow = 30 * 1000
+  
+  // Проверяем, есть ли изображения раньше этого
+  const earlierImages = props.messages.filter((msg, index) => {
+    if (msg.type !== 'image' || msg.id === message.id) return false
+    const msgTime = new Date(msg.created_at).getTime()
+    return msgTime < currentTime && Math.abs(msgTime - currentTime) <= timeWindow
+  })
+  
+  return earlierImages.length === 0
+}
+
+const getImageGroup = (message: Message) => {
+  if (message.type !== 'image') return [message]
+  
+  const currentTime = new Date(message.created_at).getTime()
+  const timeWindow = 30 * 1000
+  
+  const groupImages = props.messages.filter((msg) => {
+    if (msg.type !== 'image') return false
+    const msgTime = new Date(msg.created_at).getTime()
+    return Math.abs(msgTime - currentTime) <= timeWindow
+  }).sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+  
+  return groupImages.slice(0, 4) // Показываем максимум 4 изображения
+}
+
+const getImageGroupGridClass = (images: Message[], index: number) => {
+  const count = images.length
+  if (count === 1) return ''
+  if (count === 2) return ''
+  if (count === 3) {
+    if (index === 0) return 'col-span-2'
+    return ''
+  }
+  if (count >= 4) {
+    if (index === 0) return 'col-span-2'
+    return ''
+  }
+  return ''
+}
+
+const getImageGroupStyle = (images: Message[], index: number) => {
+  const count = images.length
+  if (count === 1) return 'max-height: 250px; object-fit: contain;'
+  if (count === 2) return 'height: 120px; object-fit: cover;'
+  if (count === 3) {
+    if (index === 0) return 'height: 150px; object-fit: cover;'
+    return 'height: 70px; object-fit: cover;'
+  }
+  if (count >= 4) {
+    if (index === 0) return 'height: 120px; object-fit: cover;'
+    return 'height: 80px; object-fit: cover;'
+  }
+  return ''
+}
 </script>

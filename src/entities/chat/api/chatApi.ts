@@ -104,6 +104,16 @@ export const chatApi = {
     })
   },
 
+  // Отправка медиа через Wazzup24
+  sendWazzupMedia: (chatId: number, data: {
+    media_url: string;
+    media_type: 'image' | 'video' | 'audio' | 'document';
+    caption?: string;
+    file_name?: string;
+  }): Promise<ApiResponse<Message>> => {
+    return apiClient.post(`/wazzup24/chats/${chatId}/send-media`, data)
+  },
+
   // Отправка системного сообщения
   sendSystemMessage: (chatId: number, data: SystemMessageData): Promise<ApiResponse<Message>> => {
     return apiClient.post(`${API_CONFIG.ENDPOINTS.CHATS}/${chatId}/system-message`, data)
