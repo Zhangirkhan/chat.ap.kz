@@ -50,7 +50,7 @@
           <li class="pt-4">
             <button
               @click="toggleGroup('companies')"
-              class="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-gray-700 transition-colors"
+              class="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
             >
               <span>Компании</span>
               <i :class="[
@@ -66,8 +66,8 @@
               <router-link
                 to="/organizations"
                 :class="[
-                  'flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-3 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200 group text-sm lg:text-base',
-                  $route.path === '/organizations' ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600' : ''
+                  'flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 group text-sm lg:text-base',
+                  $route.path === '/organizations' ? 'bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-300 border-r-2 border-primary-600' : ''
                 ]"
               >
                 <i class="pi pi-building text-base lg:text-lg"></i>
@@ -82,8 +82,8 @@
               <router-link
                 to="/departments"
                 :class="[
-                  'flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-3 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200 group text-sm lg:text-base',
-                  $route.path === '/departments' ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600' : ''
+                  'flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 group text-sm lg:text-base',
+                  $route.path === '/departments' ? 'bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-300 border-r-2 border-primary-600' : ''
                 ]"
               >
                 <i class="pi pi-sitemap text-base lg:text-lg"></i>
@@ -97,8 +97,8 @@
               <router-link
                 to="/positions"
                 :class="[
-                  'flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-3 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200 group text-sm lg:text-base',
-                  $route.path === '/positions' ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600' : ''
+                  'flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 group text-sm lg:text-base',
+                  $route.path === '/positions' ? 'bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-300 border-r-2 border-primary-600' : ''
                 ]"
               >
                 <i class="pi pi-briefcase text-base lg:text-lg"></i>
@@ -112,8 +112,8 @@
               <router-link
                 to="/employees"
                 :class="[
-                  'flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-3 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200 group text-sm lg:text-base',
-                  $route.path === '/employees' ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600' : ''
+                  'flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 lg:py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 group text-sm lg:text-base',
+                  $route.path === '/employees' ? 'bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-300 border-r-2 border-primary-600' : ''
                 ]"
               >
                 <i class="pi pi-users text-base lg:text-lg"></i>
