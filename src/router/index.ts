@@ -1,0 +1,130 @@
+import { createRouter, createWebHistory } from 'vue-router'
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    { path: '/', redirect: '/dashboard' },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('../pages/login/LoginPage.vue'),
+      meta: { requiresGuest: true }
+    },
+    {
+      path: '/dashboard',
+      name: 'dashboard',
+      component: () => import('../pages/dashboard/DashboardPage.vue')
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('../pages/dashboard/DashboardPage.vue')
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: () => import('../pages/profile/ProfilePage.vue')
+    },
+    {
+      path: '/users',
+      name: 'users',
+      component: () => import('../pages/users/UsersPage.vue')
+    },
+    {
+      path: '/chats',
+      name: 'chats',
+      component: () => import('../pages/chats/ChatsPage.vue')
+    },
+    {
+      path: '/contractors',
+      name: 'contractors',
+      component: () => import('../pages/contractors/ContractorsPage.vue')
+    },
+    {
+      path: '/broadcasts',
+      name: 'broadcasts',
+      component: () => import('../pages/broadcasts/BroadcastsPage.vue')
+    },
+    {
+      path: '/templates',
+      name: 'templates',
+      component: () => import('../pages/templates/TemplatesPage.vue')
+    },
+    {
+      path: '/organizations',
+      name: 'organizations',
+      component: () => import('../pages/organizations/OrganizationsPage.vue')
+    },
+    {
+      path: '/admin/companies',
+      name: 'admin-companies',
+      component: () => import('../pages/admin/companies/CompaniesAdminPage.vue')
+    },
+    {
+      path: '/departments',
+      name: 'departments',
+      component: () => import('../pages/departments/DepartmentsPage.vue')
+    },
+    {
+      path: '/positions',
+      name: 'positions',
+      component: () => import('../pages/positions/PositionsPage.vue')
+    },
+    {
+      path: '/employees',
+      name: 'employees',
+      component: () => import('../pages/employees/EmployeesPage.vue')
+    },
+    {
+      path: '/roles',
+      name: 'roles',
+      component: () => import('../pages/roles/RolesPage.vue')
+    },
+    // Catch-all маршрут для обработки несуществующих страниц
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'notFound',
+      redirect: '/'
+    }
+  ],
+})
+
+// Навигационные гарды для защиты маршрутов
+router.beforeEach(async (to, from, next) => {
+  // Динамически импортируем authStore для избежания циклических зависимостей
+  const { useAuthStore } = await import('@/features/auth')
+  const authStore = useAuthStore()
+
+  // Ждем инициализации authStore
+  if (!authStore.isInitialized) {
+    // Небольшая задержка для инициализации
+    await new Promise(resolve => setTimeout(resolve, 100))
+  }
+
+  const isAuthenticated = authStore.isAuthenticated
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth !== false)
+  const requiresGuest = to.matched.some(record => record.meta.requiresGuest === true)
+
+    to: to.path,
+    isAuthenticated,
+    requiresAuth,
+    requiresGuest
+  })
+
+  // Если маршрут требует гостевого доступа (например, /login) и пользователь авторизован
+  if (requiresGuest && isAuthenticated) {
+    return next('/dashboard')
+  }
+
+  // Если маршрут требует авторизации и пользователь не авторизован
+  if (requiresAuth && !isAuthenticated) {
+    return next('/login')
+  }
+
+  // Если пользователь не авторизован и пытается попасть на защищенную страницу (все кроме /login)
+  if (!isAuthenticated && to.path !== '/login') {
+    return next('/login')
+  }
+
+  next()
+export default router
