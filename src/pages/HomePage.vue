@@ -8,7 +8,7 @@
             <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
           </svg>
         </div>
-        <h1 class="text-4xl font-bold text-gray-900 mb-3">ERP.AP.KZ</h1>
+        <h1 class="text-4xl font-bold text-gray-900 mb-3">erp.ap.kz</h1>
         <p class="text-lg text-gray-600">Система корпоративного общения</p>
       </div>
 
@@ -85,7 +85,7 @@
 
       <!-- Футер -->
       <div class="text-center mt-8 text-gray-600">
-        <div class="text-sm">© 2025 ERP.AP.KZ</div>
+        <div class="text-sm">© 2025 erp.ap.kz</div>
         <div class="text-xs mt-1">Система корпоративного общения</div>
       </div>
     </div>

@@ -4,7 +4,7 @@ module.exports = {
       name: 'chat-ap-kz',
       script: 'npm',
       args: 'run build',
-      cwd: '/var/www/user/data/www/ERP.AP.KZ',
+      cwd: '/var/www/user/data/www/erp.ap.kz',
       env: {
         NODE_ENV: 'production'
       },

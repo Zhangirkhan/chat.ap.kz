@@ -26,8 +26,9 @@ export function useChatSSE() {
         throw new Error('No auth token found')
       }
 
+      const base = import.meta.env.VITE_API_BASE_URL || 'https://back-erp.ap.kz'
       // Создаем SSE соединение с токеном в URL (так как EventSource не поддерживает заголовки)
-      const url = `https://back-erp.ap.kz/api/chat-stream/${chatId}/stream?token=${encodeURIComponent(token)}`
+      const url = `${base}/api/chat-stream/${chatId}/stream?token=${encodeURIComponent(token)}`
       eventSource.value = new EventSource(url, {
         withCredentials: true
       })
@@ -108,8 +109,9 @@ export function useChatSSE() {
   // Получить статус подключений к чату
   const getChatStatus = async (chatId: number) => {
     try {
+      const base = import.meta.env.VITE_API_BASE_URL || 'https://back-erp.ap.kz'
       // Используем fetch напрямую, так как chatApi не имеет метода get
-      const response = await fetch(`https://back-erp.ap.kz/api/chat-stream/${chatId}/status`, {
+      const response = await fetch(`${base}/api/chat-stream/${chatId}/status`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json'

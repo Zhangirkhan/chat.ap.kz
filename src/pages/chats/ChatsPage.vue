@@ -421,7 +421,7 @@ const setupChatListSSE = () => {
     }
 
     // Создаем SSE соединение для получения обновлений списка чатов
-    const url = `https://back-ERP.AP.KZi/chats/stream?token=${encodeURIComponent(token)}`
+    const url = `https://back-erp.ap.kz/api/chats/stream?token=${encodeURIComponent(token)}`
     sseForChats.value = new EventSource(url, {
       withCredentials: true
     })

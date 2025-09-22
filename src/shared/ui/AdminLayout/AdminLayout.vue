@@ -23,7 +23,7 @@
           </svg>
         </div>
         <span class="text-base lg:text-lg font-semibold text-gray-900 dark:text-white transition-colors duration-300">
-          ERP.AP.KZ
+          erp.ap.kz
         </span>
       </div>
 

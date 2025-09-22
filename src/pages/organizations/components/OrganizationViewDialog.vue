@@ -231,7 +231,7 @@ const testWebhook = async () => {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${props.organization.webhook_token}`,
-        'X-Webhook-Source': 'ERP.AP.KZ'
+        'X-Webhook-Source': 'erp.ap.kz'
       },
       body: JSON.stringify({
         event: 'test',

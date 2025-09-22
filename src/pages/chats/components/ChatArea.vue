@@ -109,8 +109,11 @@
                   class="max-w-full h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
                   style="max-height: 250px; width: auto; object-fit: contain;"
                   @click="$emit('openImagePreview', message.file_path)"
+                  @error="handleImageError"
                 />
                 <p v-if="message.file_name" class="text-xs text-gray-500 mt-1">{{ message.file_name }}</p>
+                <p v-if="message.file_size" class="text-xs text-gray-400 mt-1">{{ formatFileSize(message.file_size) }}</p>
+                <p v-if="message.message" class="text-xs text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap">{{ message.message }}</p>
               </div>
 
               <!-- Видео -->
@@ -124,6 +127,30 @@
                   Ваш браузер не поддерживает видео.
                 </video>
                 <p v-if="message.file_name" class="text-xs text-gray-500 mt-1">{{ message.file_name }}</p>
+                <p v-if="message.message" class="text-xs text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap">{{ message.message }}</p>
+              </div>
+
+              <!-- Документ -->
+              <div v-else-if="message.type === 'document' && message.file_path" class="mb-2">
+                <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-600 rounded-lg border border-gray-200 dark:border-gray-500">
+                  <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <i :class="getDocumentIcon(message.file_name)" class="text-2xl"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ message.file_name || 'Документ' }}</p>
+                    <p v-if="message.file_size" class="text-xs text-gray-500 dark:text-gray-400">{{ formatFileSize(message.file_size) }}</p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500">{{ getFileExtension(message.file_name) }}</p>
+                  </div>
+                  <a
+                    :href="message.file_path"
+                    :download="message.file_name"
+                    class="w-10 h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center justify-center transition-colors"
+                    title="Скачать документ"
+                  >
+                    <i class="pi pi-download text-sm"></i>
+                  </a>
+                </div>
+                <p v-if="message.message" class="text-xs text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap">{{ message.message }}</p>
               </div>
 
               <!-- Аудио (только отображение) -->
@@ -141,14 +168,16 @@
                   <source :src="message.file_path" />
                   Ваш браузер не поддерживает аудио.
                 </audio>
+                <p v-if="message.message" class="text-xs text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap">{{ message.message }}</p>
               </div>
 
               <!-- Неизвестный тип -->
               <div v-else class="text-sm text-gray-500">
                 {{ message.type === 'image' ? '📷 Изображение' :
                    message.type === 'video' ? '🎥 Видео' :
-                   message.type === 'file' ? '📄 Документ' :
-                   '📎 Файл' }}
+                   message.type === 'document' ? '📄 Документ' :
+                   message.type === 'file' ? '📄 Файл' :
+                   '📎 Вложение' }}
               </div>
             </div>
           </div>
@@ -162,8 +191,8 @@
               <span class="font-medium">Система</span>
               <span class="opacity-75">{{ formatTime(message.created_at) }}</span>
             </div>
-            <!-- Текст сообщения выровнен слева -->
-            <div class="text-left leading-relaxed">
+            <!-- Текст сообщения выровнен слева; сохраняем переносы и табы -->
+            <div class="text-left leading-relaxed whitespace-pre-wrap break-words">
               {{ message.message }}
             </div>
           </div>
@@ -196,8 +225,11 @@
                   class="max-w-full h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
                   style="max-height: 250px; width: auto; object-fit: contain;"
                   @click="$emit('openImagePreview', message.file_path)"
+                  @error="handleImageError"
                 />
                 <p v-if="message.file_name" class="text-xs text-white opacity-75 mt-1">{{ message.file_name }}</p>
+                <p v-if="message.file_size" class="text-xs text-white opacity-50 mt-1">{{ formatFileSize(message.file_size) }}</p>
+                <p v-if="message.message" class="text-xs text-white opacity-90 mt-1 whitespace-pre-wrap">{{ message.message }}</p>
               </div>
 
               <!-- Видео -->
@@ -211,9 +243,33 @@
                   Ваш браузер не поддерживает видео.
                 </video>
                 <p v-if="message.file_name" class="text-xs text-white opacity-75 mt-1">{{ message.file_name }}</p>
+                <p v-if="message.message" class="text-xs text-white opacity-90 mt-1 whitespace-pre-wrap">{{ message.message }}</p>
               </div>
 
               <!-- Документ -->
+              <div v-else-if="message.type === 'document' && message.file_path" class="mb-2">
+                <div class="flex items-center gap-3 p-3 bg-blue-600 rounded-lg border border-blue-500">
+                  <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <i :class="getDocumentIcon(message.file_name)" class="text-2xl text-white"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-white truncate">{{ message.file_name || 'Документ' }}</p>
+                    <p v-if="message.file_size" class="text-xs text-white opacity-75">{{ formatFileSize(message.file_size) }}</p>
+                    <p class="text-xs text-white opacity-50">{{ getFileExtension(message.file_name) }}</p>
+                  </div>
+                  <a
+                    :href="message.file_path"
+                    :download="message.file_name"
+                    class="w-10 h-10 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg flex items-center justify-center transition-colors"
+                    title="Скачать документ"
+                  >
+                    <i class="pi pi-download text-sm"></i>
+                  </a>
+                </div>
+                <p v-if="message.message" class="text-xs text-white opacity-90 mt-1 whitespace-pre-wrap">{{ message.message }}</p>
+              </div>
+
+              <!-- Документ (старый формат) -->
               <div v-else-if="message.type === 'file' && message.file_path" class="flex items-center gap-3 p-2 bg-blue-600 rounded-lg">
                 <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                   <i class="pi pi-file text-white"></i>
@@ -247,14 +303,16 @@
                   <source :src="message.file_path" />
                   Ваш браузер не поддерживает аудио.
                 </audio>
+                <p v-if="message.message" class="text-xs text-white opacity-90 mt-1 whitespace-pre-wrap">{{ message.message }}</p>
               </div>
 
               <!-- Неизвестный тип -->
               <div v-else class="text-sm opacity-90">
                 {{ message.type === 'image' ? '📷 Изображение' :
                    message.type === 'video' ? '🎥 Видео' :
-                   message.type === 'file' ? '📄 Документ' :
-                   '📎 Файл' }}
+                   message.type === 'document' ? '📄 Документ' :
+                   message.type === 'file' ? '📄 Файл' :
+                   '📎 Вложение' }}
               </div>
             </div>
 
@@ -428,6 +486,51 @@ const formatFileSize = (bytes: number) => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+}
+
+// Обработка ошибок загрузки изображений
+const handleImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  console.warn('Failed to load image:', img.src)
+  // Можно добавить fallback изображение или показать сообщение об ошибке
+}
+
+// Получение иконки для типа документа
+const getDocumentIcon = (fileName?: string) => {
+  if (!fileName) return 'pi pi-file'
+  
+  const extension = fileName.split('.').pop()?.toLowerCase()
+  
+  const iconMap: Record<string, string> = {
+    'pdf': 'pi pi-file-pdf',
+    'doc': 'pi pi-file-word',
+    'docx': 'pi pi-file-word',
+    'xls': 'pi pi-file-excel',
+    'xlsx': 'pi pi-file-excel',
+    'ppt': 'pi pi-file-powerpoint',
+    'pptx': 'pi pi-file-powerpoint',
+    'txt': 'pi pi-file',
+    'csv': 'pi pi-file',
+    'zip': 'pi pi-file-archive',
+    'rar': 'pi pi-file-archive',
+    '7z': 'pi pi-file-archive',
+    'jpg': 'pi pi-image',
+    'jpeg': 'pi pi-image',
+    'png': 'pi pi-image',
+    'gif': 'pi pi-image',
+    'webp': 'pi pi-image',
+    'json': 'pi pi-file',
+    'xml': 'pi pi-file'
+  }
+  
+  return iconMap[extension || ''] || 'pi pi-file'
+}
+
+// Получение расширения файла
+const getFileExtension = (fileName?: string) => {
+  if (!fileName) return ''
+  const extension = fileName.split('.').pop()?.toLowerCase()
+  return extension ? extension.toUpperCase() : ''
 }
 
 // Обработка ввода текста

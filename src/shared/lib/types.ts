@@ -60,7 +60,7 @@ export interface Chat {
 export interface Message {
   id: number
   message: string
-  type: 'text' | 'image' | 'video' | 'audio' | 'file' | 'system'
+  type: 'text' | 'image' | 'video' | 'audio' | 'file' | 'document' | 'system'
   is_from_client: boolean
   file_path?: string
   file_name?: string
@@ -91,7 +91,7 @@ export interface UpdateChatData {
 // Типы для сообщений
 export interface SendMessageData {
   message: string
-  type?: 'text' | 'image' | 'video' | 'audio' | 'file'
+  type?: 'text' | 'image' | 'video' | 'audio' | 'file' | 'document'
   file?: File
 }
 
