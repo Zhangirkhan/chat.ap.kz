@@ -215,6 +215,7 @@ const handleSubmit = async () => {
       organization_id: Number(form.organization_id),
       // @ts-expect-error: для create поле может отсутствовать в типе
       status: form.status,
+      manager: form.manager || undefined,
       show_in_chatbot: form.show_in_chatbot,
       chatbot_order: form.chatbot_order
     }

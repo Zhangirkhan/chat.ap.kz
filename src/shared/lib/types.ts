@@ -203,8 +203,10 @@ export interface CreateDepartmentData {
   name: string
   description?: string
   organization_id: number
+  status?: 'active' | 'inactive'
   show_in_chatbot?: boolean
   chatbot_order?: number
+  manager?: string
 }
 
 export interface UpdateDepartmentData {
@@ -214,6 +216,7 @@ export interface UpdateDepartmentData {
   status?: 'active' | 'inactive'
   show_in_chatbot?: boolean
   chatbot_order?: number
+  manager?: string
 }
 
 export interface CreatePositionData {

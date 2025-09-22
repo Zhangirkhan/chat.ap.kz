@@ -50,7 +50,7 @@
           <li class="pt-4">
             <button
               @click="toggleGroup('companies')"
-              class="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+              class="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-500 dark:text-white uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
             >
               <span>Компании</span>
               <i :class="[
