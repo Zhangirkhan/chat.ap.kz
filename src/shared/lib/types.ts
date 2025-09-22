@@ -151,6 +151,7 @@ export interface Department {
   chatbot_order: number // Порядок в чат-боте
   created_at: string
   updated_at: string
+  slug?: string
 }
 
 export interface Position {
@@ -206,7 +207,6 @@ export interface CreateDepartmentData {
   status?: 'active' | 'inactive'
   show_in_chatbot?: boolean
   chatbot_order?: number
-  manager?: string
 }
 
 export interface UpdateDepartmentData {
@@ -216,7 +216,6 @@ export interface UpdateDepartmentData {
   status?: 'active' | 'inactive'
   show_in_chatbot?: boolean
   chatbot_order?: number
-  manager?: string
 }
 
 export interface CreatePositionData {

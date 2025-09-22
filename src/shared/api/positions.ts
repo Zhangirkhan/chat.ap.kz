@@ -10,6 +10,8 @@ export interface Position {
   created_at: string
   updated_at: string
   users_count?: number
+  organization_id?: number
+  department_id?: number
 }
 
 export interface CreatePositionData {

@@ -49,18 +49,6 @@
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Руководитель
-            </label>
-            <input
-              v-model="form.manager"
-              type="text"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Введите ФИО руководителя"
-            />
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Статус
             </label>
             <select
@@ -173,7 +161,6 @@ const loading = ref(false)
 const form = reactive({
   name: '',
   description: '',
-  manager: '',
   organization_id: '' as string | number,
   status: 'active' as 'active' | 'inactive',
   show_in_chatbot: false,
@@ -186,7 +173,6 @@ const initForm = () => {
     Object.assign(form, {
       name: props.department.name || '',
       description: props.department.description || '',
-      manager: props.department.manager || '',
       organization_id: props.department.organization_id || '',
       status: props.department.status || 'active',
       show_in_chatbot: props.department.show_in_chatbot || false,
@@ -196,7 +182,6 @@ const initForm = () => {
     Object.assign(form, {
       name: '',
       description: '',
-      manager: '',
       organization_id: '',
       status: 'active',
       show_in_chatbot: false,
@@ -211,11 +196,10 @@ const handleSubmit = async () => {
   try {
     const payload = {
       name: form.name,
-      description: form.description || undefined,
+      description: form.description ?? '',
       organization_id: Number(form.organization_id),
       // @ts-expect-error: для create поле может отсутствовать в типе
       status: form.status,
-      manager: form.manager || undefined,
       show_in_chatbot: form.show_in_chatbot,
       chatbot_order: form.chatbot_order
     }

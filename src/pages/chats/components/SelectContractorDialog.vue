@@ -179,15 +179,19 @@ const loadContractors = async () => {
 
     const response = await contractorsApi.getContractors({
       per_page: 100,
-      search: searchQuery.value || undefined
+      search: (searchQuery.value || '').trim() || undefined
     })
 
+    // Нормализуем различные форматы ответа
+    const possibleArrays = [
+      (response as any)?.data,
+      (response as any)?.data?.data,
+      (response as any)
+    ]
+    const list = possibleArrays.find((arr) => Array.isArray(arr)) as Contractor[] | undefined
 
-    // Обрабатываем ответ в зависимости от формата
-    if (response.data && Array.isArray(response.data)) {
-      contractors.value = response.data
-    } else if (Array.isArray(response)) {
-      contractors.value = response
+    if (Array.isArray(list)) {
+      contractors.value = list
     } else {
       contractors.value = []
       error.value = 'Неожиданный формат ответа от сервера'

@@ -49,7 +49,8 @@
                 <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-36">Название</th>
                 <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-32">Slug</th>
                 <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-40">Описание</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-32">Разрешения</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-40">Организация</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-40">Отдел</th>
                 <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-24">Пользователи</th>
                 <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-20">Статус</th>
                 <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-28">Действия</th>
@@ -63,17 +64,11 @@
                 </td>
                 <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 truncate">{{ position.slug || '-' }}</td>
                 <td class="px-3 py-3 text-sm text-gray-900 dark:text-white truncate">{{ position.description || '-' }}</td>
-                <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                  <div class="flex flex-wrap gap-1">
-                    <span v-for="permission in position.permissions?.slice(0, 2)" :key="permission"
-                          class="inline-flex px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 rounded">
-                      {{ permission }}
-                    </span>
-                    <span v-if="position.permissions?.length > 2"
-                          class="inline-flex px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded">
-                      +{{ position.permissions.length - 2 }}
-                    </span>
-                  </div>
+                <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white truncate">
+                  {{ position.organization_id ? getOrganizationName(position.organization_id) : '-' }}
+                </td>
+                <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white truncate">
+                  {{ position.department_id ? getDepartmentName(position.department_id) : '-' }}
                 </td>
                 <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                   <div class="flex items-center gap-1">
@@ -158,7 +153,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import AdminLayout from '@/shared/ui/AdminLayout/AdminLayout.vue'
 import { ConfirmDialog } from '@/shared/ui'
-import { positionsApi, type Position, type CreatePositionData, type UpdatePositionData, AVAILABLE_PERMISSIONS } from '@/shared/api/positions'
+import { positionsApi, type Position, type CreatePositionData, type UpdatePositionData } from '@/shared/api/positions'
 import PositionDialog from './components/PositionDialog.vue'
 import PositionViewDialog from './components/PositionViewDialog.vue'
 import { useToast } from 'primevue/usetoast'
@@ -270,9 +265,18 @@ const viewPosition = (position: any) => {
   showViewDialog.value = true
 }
 
-const editPosition = (position: any) => {
-  selectedPosition.value = position
-  showEditDialog.value = true
+const editPosition = async (position: any) => {
+  try {
+    // Загружаем подробности должности, чтобы получить organization_id и department_id
+    const resp = await positionsApi.getPosition(position.id)
+    const detailed = (resp as any).position || (resp as any).data || resp
+    selectedPosition.value = detailed || position
+  } catch (e) {
+    // Если не удалось загрузить детали, используем имеющиеся данные
+    selectedPosition.value = position
+  } finally {
+    showEditDialog.value = true
+  }
 }
 
 const confirmDelete = (position: any) => {

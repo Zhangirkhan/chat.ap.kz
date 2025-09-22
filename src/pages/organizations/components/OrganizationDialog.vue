@@ -57,25 +57,12 @@
               type="tel"
               required
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="8 777 123 45 67"
+              placeholder="+7 777 123 45 67"
             />
             <p v-if="errors.phone" class="text-red-500 text-xs mt-1">{{ errors.phone }}</p>
           </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Домен
-            </label>
-            <input
-              v-model="form.domain"
-              type="text"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="example.com"
-            />
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Домен организации (необязательно)
-            </p>
-          </div>
+          
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -104,7 +91,7 @@
         </div>
 
         <!-- Интеграция с WhatsApp (Wazzup24) -->
-        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+        <div v-if="isEdit" class="border-t border-gray-200 dark:border-gray-700 pt-6">
           <div class="flex items-center gap-3 mb-4">
             <i class="pi pi-whatsapp text-green-500 text-xl"></i>
             <h3 class="text-lg font-medium text-gray-900 dark:text-white">Интеграция с WhatsApp (Wazzup24)</h3>
@@ -337,7 +324,7 @@ const form = reactive({
   name: '',
   slug: '',
   description: '',
-  domain: '',
+  
   phone: '',
   webhook_url: '',
   webhook_token: '',
@@ -378,7 +365,7 @@ const initForm = () => {
       name: props.organization.name || '',
       slug: props.organization.slug || '',
       description: props.organization.description || '',
-      domain: props.organization.domain || '',
+      
       phone: props.organization.phone || '',
       webhook_url: props.organization.webhook_url || '',
       webhook_token: props.organization.webhook_token || '',
@@ -397,7 +384,7 @@ const initForm = () => {
       name: '',
       slug: '',
       description: '',
-      domain: '',
+      
       phone: '',
       webhook_url: '',
       webhook_token: '',

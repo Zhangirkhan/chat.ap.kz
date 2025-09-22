@@ -32,7 +32,7 @@
       <div v-if="loading" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-12 text-center">
         <div class="flex flex-col items-center gap-4">
           <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-          <span class="text-gray-600 dark:text-gray-400 font-inter text-sm">Загрузка организаций...</span>
+          <span class="text-gray-900 dark:text-gray-400 font-inter text-sm">Загрузка организаций...</span>
         </div>
       </div>
 
@@ -61,7 +61,7 @@
                   <h3 class="font-semibold text-gray-900 dark:text-white font-inter text-lg mb-1">
                     {{ organization.name }}
                   </h3>
-                  <p class="text-sm text-gray-500 dark:text-gray-400 font-inter">
+                  <p class="text-sm text-gray-900 dark:text-gray-400 font-inter">
                     ID: {{ organization.id }}
                   </p>
                 </div>
@@ -77,22 +77,22 @@
 
               <div class="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span class="text-gray-500 dark:text-gray-400 font-inter">Slug:</span>
+                  <span class="text-gray-900 dark:text-gray-400 font-inter">Slug:</span>
                   <p class="text-gray-900 dark:text-white font-inter mt-1">{{ organization.slug || '-' }}</p>
                 </div>
                 <div>
-                  <span class="text-gray-500 dark:text-gray-400 font-inter">Описание:</span>
+                  <span class="text-gray-900 dark:text-gray-400 font-inter">Описание:</span>
                   <p class="text-gray-900 dark:text-white font-inter mt-1">{{ organization.description || '-' }}</p>
                 </div>
                 <div>
-                  <span class="text-gray-500 dark:text-gray-400 font-inter">Отделы:</span>
+                  <span class="text-gray-900 dark:text-gray-400 font-inter">Отделы:</span>
                   <div class="flex items-center gap-2 mt-1">
                     <i class="pi pi-building text-gray-400 text-xs"></i>
                     <span class="text-gray-900 dark:text-white font-inter">{{ organization.departments_count || 0 }}</span>
                   </div>
                 </div>
                 <div>
-                  <span class="text-gray-500 dark:text-gray-400 font-inter">Пользователи:</span>
+                  <span class="text-gray-900 dark:text-gray-400 font-inter">Пользователи:</span>
                   <div class="flex items-center gap-2 mt-1">
                     <i class="pi pi-users text-gray-400 text-xs"></i>
                     <span class="text-gray-900 dark:text-white font-inter">{{ organization.users_count || 0 }}</span>
@@ -115,13 +115,7 @@
                 >
                   <i class="pi pi-pencil text-sm"></i>
                 </button>
-                <button
-                  @click="testWebhook(organization)"
-                  class="p-2 text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-all duration-200"
-                  title="Тестировать webhook"
-                >
-                  <i class="pi pi-play text-sm"></i>
-                </button>
+                
                 <button
                   @click="confirmDelete(organization)"
                   class="p-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-200"
@@ -159,12 +153,12 @@
                   </div>
                 </td>
                 <td class="px-6 py-5 whitespace-nowrap">
-                  <span class="text-sm text-gray-600 dark:text-gray-400 font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+                  <span class="text-sm text-gray-900 dark:text-gray-400 font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
                     {{ organization.slug || '-' }}
                   </span>
                 </td>
                 <td class="px-6 py-5">
-                  <div class="text-sm text-gray-700 dark:text-gray-300 font-inter max-w-[250px] truncate">
+                  <div class="text-sm text-gray-900 dark:text-gray-300 font-inter max-w-[250px] truncate">
                     {{ organization.description || '-' }}
                   </div>
                 </td>
@@ -214,13 +208,7 @@
                     >
                       <i class="pi pi-pencil text-sm"></i>
                     </button>
-                    <button
-                      @click="testWebhook(organization)"
-                      class="p-2 text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-all duration-200"
-                      title="Тестировать webhook"
-                    >
-                      <i class="pi pi-play text-sm"></i>
-                    </button>
+                    
                     <button
                       @click="confirmDelete(organization)"
                       class="p-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-200"
@@ -355,12 +343,13 @@ const handleSave = async (organizationData: CreateOrganizationData | UpdateOrgan
       // Редактирование существующей организации
       const response = await organizationApi.updateOrganization(selectedOrganization.value.id, organizationData as UpdateOrganizationData)
 
-
+      
       const index = organizations.value.findIndex(org => org.id === selectedOrganization.value?.id)
       if (index !== -1) {
-        // Проверяем формат ответа
-        if (response.data) {
-          organizations.value[index] = response.data
+        // Поддержка разных форматов ответа
+        const updated = (response as any).data?.organization || (response as any).organization || (response as any).data
+        if (updated) {
+          organizations.value[index] = updated
         } else {
           throw new Error('Неожиданный формат ответа от сервера')
         }
@@ -369,10 +358,11 @@ const handleSave = async (organizationData: CreateOrganizationData | UpdateOrgan
       // Добавление новой организации
       const response = await organizationApi.createOrganization(organizationData as CreateOrganizationData)
 
-
-      // Проверяем формат ответа
-      if (response.data) {
-        organizations.value.push(response.data)
+      
+      // Поддержка разных форматов ответа
+      const created = (response as any).data?.organization || (response as any).organization || (response as any).data
+      if (created) {
+        organizations.value.push(created)
       } else {
         throw new Error('Неожиданный формат ответа от сервера')
       }
@@ -447,37 +437,7 @@ const deleteOrganization = async () => {
   }
 }
 
-const testWebhook = async (organization: Organization) => {
-  try {
-    loading.value = true
-
-    await organizationApi.testWazzupConnection(organization.id)
-
-    // Показываем уведомление об успехе
-    toast.add({
-      severity: 'success',
-      summary: 'Успешно',
-      detail: 'Webhook успешно протестирован!',
-      life: 4000,
-      closable: true,
-      group: 'main'
-    })
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Ошибка тестирования webhook'
-
-    // Показываем уведомление об ошибке
-    toast.add({
-      severity: 'error',
-      summary: 'Ошибка',
-      detail: err instanceof Error ? err.message : 'Ошибка тестирования webhook',
-      life: 6000,
-      closable: true,
-      group: 'main'
-    })
-  } finally {
-    loading.value = false
-  }
-}
+// Удалено тестирование webhook из списка организаций по требованию
 
 // Обработка поиска с задержкой
 let searchTimeout: number | null = null

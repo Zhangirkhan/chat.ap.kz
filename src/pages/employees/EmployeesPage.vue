@@ -73,13 +73,22 @@
                     </div>
                   </div>
                 </td>
-                <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white truncate">{{ employee.position || '-' }}</td>
-                <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white truncate">{{ employee.department?.name || '-' }}</td>
-                <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                <td class="px-3 py-3 whitespace-nowrap text-sm truncate">
+                  <span v-if="employee.position" class="text-gray-900 dark:text-white">{{ employee.position }}</span>
+                  <span v-else class="inline-flex px-2 py-1 text-xs font-semibold rounded bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300">Система</span>
+                </td>
+                <td class="px-3 py-3 whitespace-nowrap text-sm truncate">
+                  <span v-if="employee.department?.name" class="text-gray-900 dark:text-white">{{ employee.department.name }}</span>
+                  <span v-else class="inline-flex px-2 py-1 text-xs font-semibold rounded bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300">Система</span>
+                </td>
+                <td class="px-3 py-3 whitespace-nowrap text-sm">
                   <div v-if="employee.organization">
                     <span class="inline-flex px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 rounded">
                       {{ employee.organization.name }}
                     </span>
+                  </div>
+                  <div v-else>
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300">Система</span>
                   </div>
                 </td>
                 <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
@@ -113,6 +122,13 @@
                       title="Редактировать"
                     >
                       <i class="pi pi-pencil"></i>
+                    </button>
+                    <button
+                      @click="openChangePassword(employee)"
+                      class="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300 p-1"
+                      title="Сменить пароль"
+                    >
+                      <i class="pi pi-key"></i>
                     </button>
                     <button
                       @click="confirmDelete(employee)"
@@ -152,6 +168,14 @@
       @close="closeDialog"
     />
 
+    <!-- Диалог смены пароля -->
+    <EmployeeChangePasswordDialog
+      v-if="showChangePasswordDialog"
+      :default-password="'12345678'"
+      @close="showChangePasswordDialog = false"
+      @save="handleChangePassword"
+    />
+
     <!-- Диалог подтверждения удаления -->
     <ConfirmDialog
       v-if="showDeleteDialog"
@@ -173,6 +197,7 @@ import { useOrganizationStore } from '@/entities/organization'
 import type { User, CreateUserData, UpdateUserData, Department, Organization } from '@/shared/lib/types'
 import EmployeeDialog from './components/EmployeeDialog.vue'
 import EmployeeViewDialog from './components/EmployeeViewDialog.vue'
+import EmployeeChangePasswordDialog from './components/EmployeeChangePasswordDialog.vue'
 import { useToast } from 'primevue/usetoast'
 
 const toast = useToast()
@@ -181,6 +206,7 @@ const searchQuery = ref('')
 const showAddDialog = ref(false)
 const showEditDialog = ref(false)
 const showViewDialog = ref(false)
+const showChangePasswordDialog = ref(false)
 const showDeleteDialog = ref(false)
 const selectedEmployee = ref<User | null>(null)
 const employees = ref<User[]>([])
@@ -399,6 +425,7 @@ const closeDialog = () => {
   showAddDialog.value = false
   showEditDialog.value = false
   showViewDialog.value = false
+  showChangePasswordDialog.value = false
   showDeleteDialog.value = false
   selectedEmployee.value = null
 }
@@ -476,7 +503,7 @@ const deleteEmployee = async () => {
   try {
     loading.value = true
 
-    await userApi.deleteUser(selectedEmployee.value.id)
+    await userApi.deleteUser(selectedEmployee.value.id, { soft: true })
 
     const index = employees.value.findIndex(emp => emp.id === selectedEmployee.value?.id)
     if (index !== -1) {
@@ -504,6 +531,37 @@ const deleteEmployee = async () => {
       detail: err instanceof Error ? err.message : 'Ошибка удаления сотрудника',
       life: 6000,
       closable: true,
+      group: 'main'
+    })
+  } finally {
+    loading.value = false
+  }
+}
+
+const openChangePassword = (employee: User) => {
+  selectedEmployee.value = employee
+  showChangePasswordDialog.value = true
+}
+
+const handleChangePassword = async (payload: { password: string; password_confirmation: string }) => {
+  if (!selectedEmployee.value) return
+  try {
+    loading.value = true
+    await userApi.updateUser(selectedEmployee.value.id, payload as any)
+    toast.add({
+      severity: 'success',
+      summary: 'Успешно',
+      detail: 'Пароль обновлен',
+      life: 3000,
+      group: 'main'
+    })
+    showChangePasswordDialog.value = false
+  } catch (err) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка',
+      detail: err instanceof Error ? err.message : 'Не удалось обновить пароль',
+      life: 5000,
       group: 'main'
     })
   } finally {

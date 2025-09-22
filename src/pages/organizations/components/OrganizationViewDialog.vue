@@ -1,6 +1,6 @@
 <template>
   <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4" @click="$emit('close')">
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto" @click.stop>
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] flex flex-col" @click.stop>
       <!-- Заголовок -->
       <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
         <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
@@ -15,11 +15,11 @@
       </div>
 
       <!-- Содержимое -->
-      <div class="p-6 space-y-6">
+      <div class="p-6 space-y-6 overflow-y-auto">
         <!-- Основная информация -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+            <label class="block text-sm font-medium text-gray-900 dark:text-gray-400 mb-1">
               Название организации
             </label>
             <p class="text-lg font-semibold text-gray-900 dark:text-white">
@@ -28,21 +28,21 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+            <label class="block text-sm font-medium text-gray-900 dark:text-gray-400 mb-1">
               Статус
             </label>
             <span :class="[
               'inline-flex px-3 py-1 text-sm font-semibold rounded-full',
-              organization.status === 'active'
+              (organization.is_active === true) || (organization.status === 'active')
                 ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'
                 : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300'
             ]">
-              {{ organization.status === 'active' ? 'Активна' : 'Неактивна' }}
+              {{ (organization.is_active === true) || (organization.status === 'active') ? 'Активна' : 'Неактивна' }}
             </span>
           </div>
 
           <div v-if="organization.email">
-            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+            <label class="block text-sm font-medium text-gray-900 dark:text-gray-400 mb-1">
               Email
             </label>
             <p class="text-gray-900 dark:text-white">
@@ -53,7 +53,7 @@
           </div>
 
           <div v-if="organization.phone">
-            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+            <label class="block text-sm font-medium text-gray-900 dark:text-gray-400 mb-1">
               Телефон
             </label>
             <p class="text-gray-900 dark:text-white">
@@ -64,14 +64,14 @@
           </div>
 
           <div v-if="organization.address" class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+            <label class="block text-sm font-medium text-gray-900 dark:text-gray-400 mb-1">
               Адрес
             </label>
             <p class="text-gray-900 dark:text-white">{{ organization.address }}</p>
           </div>
 
           <div v-if="organization.description" class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+            <label class="block text-sm font-medium text-gray-900 dark:text-gray-400 mb-1">
               Описание
             </label>
             <p class="text-gray-900 dark:text-white">{{ organization.description }}</p>
@@ -84,7 +84,7 @@
 
           <div class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+              <label class="block text-sm font-medium text-gray-900 dark:text-gray-400 mb-1">
                 Webhook URL
               </label>
               <div v-if="organization.webhook_url" class="flex items-center gap-2">
@@ -99,27 +99,10 @@
                   <i class="pi pi-copy"></i>
                 </button>
               </div>
-              <p v-else class="text-gray-500 dark:text-gray-400 italic">Не настроен</p>
+              <p v-else class="text-gray-900 dark:text-gray-400 italic">Не настроен</p>
             </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                Webhook Token
-              </label>
-              <div v-if="organization.webhook_token" class="flex items-center gap-2">
-                <p class="text-sm text-gray-900 dark:text-white font-mono bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded flex-1">
-                  {{ organization.webhook_token }}
-                </p>
-                <button
-                  @click="copyToClipboard(organization.webhook_token)"
-                  class="px-3 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded text-sm transition-colors duration-200"
-                  title="Копировать токен"
-                >
-                  <i class="pi pi-copy"></i>
-                </button>
-              </div>
-              <p v-else class="text-gray-500 dark:text-gray-400 italic">Не настроен</p>
-            </div>
+            
 
             <div v-if="organization.webhook_url" class="flex items-center gap-2">
               <button
@@ -149,7 +132,7 @@
             <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
               <div class="flex items-center gap-2">
                 <i class="pi pi-users text-blue-500"></i>
-                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Пользователи</span>
+                <span class="text-sm font-medium text-gray-900 dark:text-gray-400">Пользователи</span>
               </div>
               <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">
                 {{ organization.users_count || 0 }}
@@ -159,7 +142,7 @@
             <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
               <div class="flex items-center gap-2">
                 <i class="pi pi-calendar text-green-500"></i>
-                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Дата создания</span>
+                <span class="text-sm font-medium text-gray-900 dark:text-gray-400">Дата создания</span>
               </div>
               <p class="text-sm text-gray-900 dark:text-white mt-1">
                 {{ formatDate(organization.created_at) }}
@@ -169,7 +152,7 @@
             <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
               <div class="flex items-center gap-2">
                 <i class="pi pi-link text-purple-500"></i>
-                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Webhook</span>
+                <span class="text-sm font-medium text-gray-900 dark:text-gray-400">Webhook</span>
               </div>
               <p class="text-sm text-gray-900 dark:text-white mt-1">
                 {{ organization.webhook_url ? 'Настроен' : 'Не настроен' }}

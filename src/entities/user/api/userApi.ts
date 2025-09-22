@@ -38,9 +38,13 @@ export const userApi = {
     return apiClient.put(`${API_CONFIG.ENDPOINTS.USERS}/${id}`, data)
   },
 
-  // Удаление пользователя
-  deleteUser: (id: number): Promise<ApiResponse<null>> => {
-    return apiClient.delete(`${API_CONFIG.ENDPOINTS.USERS}/${id}`)
+  // Удаление пользователя (soft по умолчанию)
+  deleteUser: (id: number, params?: { soft?: boolean }): Promise<ApiResponse<null>> => {
+    const endpoint = `${API_CONFIG.ENDPOINTS.USERS}/${id}`
+    if (params?.soft) {
+      return apiClient.delete(`${endpoint}?soft=1`)
+    }
+    return apiClient.delete(endpoint)
   },
 
   // Получение статистики пользователя

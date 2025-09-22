@@ -62,7 +62,7 @@
                 <td class="px-3 py-3">
                   <div class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ department.name }}</div>
                 </td>
-                <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 truncate">-</td>
+                <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 truncate">{{ department.slug || '-' }}</td>
                 <td class="px-3 py-3 text-sm text-gray-900 dark:text-white truncate">{{ department.description || '-' }}</td>
                 <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                   <div class="truncate">{{ department.organization?.name || getOrganizationName(department.organization_id) }}</div>

@@ -10,6 +10,7 @@ import router from './app/router'
 import { apiClient } from '@/shared/api/client'
 import { useAuthStore } from '@/features/auth'
 import { phoneMask } from '@/shared/directives/phoneMask'
+import { emailMask } from '@/shared/directives/emailMask'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -21,6 +22,8 @@ app.use(ConfirmationService)
 
 // Глобальная директива маски телефона
 app.directive('phone', phoneMask as any)
+// Глобальная директива маски email
+app.directive('email', emailMask as any)
 
 // Инициализация токена из localStorage
 const token = localStorage.getItem('token')

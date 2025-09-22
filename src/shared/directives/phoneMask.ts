@@ -3,21 +3,26 @@ import type { DirectiveBinding } from 'vue'
 function formatPhone(value: string): string {
   const digits = (value || '').replace(/\D/g, '')
 
-  // Нормализуем в формат, начинающийся с 8 и 11 цифр
+  // Приводим к формату, начинающемуся с 7 и длиной 11
   let normalized = digits
-  if (normalized.startsWith('7') || normalized.startsWith('8')) {
-    normalized = '8' + normalized.slice(1)
-  } else if (normalized.length > 0) {
-    normalized = '8' + normalized
+  if (normalized.startsWith('8')) {
+    normalized = '7' + normalized.slice(1)
+  } else if (!normalized.startsWith('7') && normalized.length > 0) {
+    normalized = '7' + normalized
   }
   normalized = normalized.slice(0, 11)
 
-  // Применяем разбиение 1-3-3-2-2: 8 777 123 45 67
+  // Строим строку вида: +7 777 123 45 67
   let out = ''
   for (let i = 0; i < normalized.length; i++) {
     const ch = normalized[i]
+    if (i === 0) {
+      out += '+7'
+      if (normalized.length > 1) out += ' '
+      continue
+    }
     out += ch
-    if (i === 0 || i === 3 || i === 6 || i === 8) {
+    if (i === 3 || i === 6 || i === 8) {
       if (i !== normalized.length - 1) out += ' '
     }
   }

@@ -44,10 +44,14 @@
             <input
               v-model="formData.inn"
               type="text"
-              maxlength="20"
+              maxlength="12"
+              inputmode="numeric"
+              pattern="\\d*"
+              @input="onInnInput"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="123456789012"
+              placeholder="000000000000"
             />
+            <p v-if="errors.inn" class="mt-1 text-xs text-red-600">{{ errors.inn }}</p>
           </div>
 
           <!-- Контакты -->
@@ -76,6 +80,7 @@
             </label>
             <input
               v-model="formData.email"
+              v-email
               type="email"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
               placeholder="info@company.kz"
@@ -227,12 +232,21 @@ const formData = ref<CreateCompanyData>({
   is_active: true
 })
 
+const errors = ref<{ inn: string }>({ inn: '' })
+
+const onInnInput = (e: Event) => {
+  const target = e.target as HTMLInputElement
+  const digits = (target.value || '').replace(/\D/g, '').slice(0, 12)
+  formData.value.inn = digits
+  errors.value.inn = digits.length === 0 || digits.length === 12 ? '' : 'ИНН/БИН должен содержать ровно 12 цифр'
+}
+
 // Заполняем форму данными при редактировании
 watch(() => props.company, (company) => {
   if (company) {
     formData.value = {
       name: company.name,
-      inn: company.inn || '',
+      inn: (company.inn || '').replace(/\D/g, '').slice(0, 12),
       legal_address: company.legal_address || '',
       actual_address: company.actual_address || '',
       phone: company.phone || '',
@@ -243,10 +257,17 @@ watch(() => props.company, (company) => {
       bik: company.bik || '',
       is_active: company.is_active
     }
+    // Валидация при инициализации
+    errors.value.inn = formData.value.inn.length === 0 || formData.value.inn.length === 12 ? '' : 'ИНН/БИН должен содержать ровно 12 цифр'
   }
 }, { immediate: true })
 
 const handleSubmit = () => {
+  // Блокируем сохранение, если введено, но не 12 цифр
+  if (formData.value.inn && formData.value.inn.length !== 12) {
+    errors.value.inn = 'ИНН/БИН должен содержать ровно 12 цифр'
+    return
+  }
   emit('save', formData.value)
 }
 </script>

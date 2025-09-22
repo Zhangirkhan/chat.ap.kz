@@ -37,28 +37,41 @@
             </label>
             <input
               v-model="form.email"
+              v-email
               type="email"
               required
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Введите email"
+              placeholder="user@example.com"
             />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Телефон *
+              Телефон
             </label>
             <input
               v-model="form.phone"
               v-phone
               type="tel"
-              required
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="8 777 123 45 67"
+              placeholder="+7 777 123 45 67"
             />
           </div>
 
           
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Роль
+            </label>
+            <select
+              v-model="form.role"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+            >
+              <option value="">Без роли</option>
+              <option v-for="r in rolesOptions" :key="r.value" :value="r.value">{{ r.label }}</option>
+            </select>
+          </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -76,6 +89,24 @@
 
         
 
+        <!-- Пароль по умолчанию -->
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <div class="flex items-center">
+            <input
+              id="default_password"
+              v-model="form.set_default_password"
+              type="checkbox"
+              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <label for="default_password" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+              Установить пароль по умолчанию 12345678
+            </label>
+          </div>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Пользователь сможет сменить пароль в профиле после входа.
+          </p>
+        </div>
+
         <!-- Рабочая информация -->
         <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
           <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Рабочая информация</h3>
@@ -83,15 +114,15 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Организация *
+                Организация
               </label>
               <select
                 v-model="form.organization_id"
-                required
+                
                 @change="onOrganizationChange"
                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
               >
-                <option value="">Выберите организацию</option>
+                <option value="">Без организации</option>
                 <option v-for="org in organizations" :key="org.id" :value="org.id">
                   {{ org.name }}
                 </option>
@@ -100,15 +131,15 @@
 
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Отдел *
+                Отдел
               </label>
               <select
                 v-model="form.department_id"
-                required
+                
                 @change="onDepartmentChange"
                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
               >
-                <option value="">Выберите отдел</option>
+                <option value="">Без отдела</option>
                 <option v-for="dept in filteredDepartments" :key="dept.id" :value="dept.id">
                   {{ dept.name }}
                 </option>
@@ -117,14 +148,14 @@
 
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Должность *
+                Должность
               </label>
               <select
                 v-model="form.position_id"
-                required
+                
                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
               >
-                <option value="">Выберите должность</option>
+                <option value="">Без должности</option>
                 <option v-for="pos in filteredPositions" :key="pos.id" :value="pos.id">
                   {{ pos.name }}
                 </option>
@@ -161,6 +192,9 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { SYSTEM_ROLES } from '@/shared/api/roles'
+
+const rolesOptions = SYSTEM_ROLES
 
 const props = defineProps({
   employee: {
@@ -198,7 +232,9 @@ const form = reactive({
   department_id: '',
   position_id: '',
   
-  status: 'active'
+  role: '' as '' | 'admin' | 'supervisor' | 'manager' | 'operator' | 'user',
+  status: 'active',
+  set_default_password: true
 })
 
 // Фильтрация отделов по выбранной организации
@@ -236,7 +272,9 @@ const initForm = () => {
       department_id: props.employee.department_id || '',
       position_id: props.employee.position_id || '',
       
-      status: props.employee.status || 'active'
+      role: (props.employee.role as any) || '',
+      status: props.employee.status || 'active',
+      set_default_password: false
     })
   } else {
     Object.assign(form, {
@@ -248,7 +286,9 @@ const initForm = () => {
       department_id: '',
       position_id: '',
       
-      status: 'active'
+      role: '',
+      status: 'active',
+      set_default_password: true
     })
   }
 }
@@ -263,6 +303,7 @@ const handleSubmit = async () => {
 
     emit('save', {
       ...form,
+      ...(form.set_default_password && !props.isEdit ? { password: '12345678', password_confirmation: '12345678' } : {}),
       id: props.employee?.id
     })
   } catch (error) {

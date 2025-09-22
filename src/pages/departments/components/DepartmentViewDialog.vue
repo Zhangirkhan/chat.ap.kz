@@ -50,12 +50,7 @@
             </p>
           </div>
 
-          <div v-if="department.manager">
-            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-              Руководитель
-            </label>
-            <p class="text-gray-900 dark:text-white">{{ department.manager }}</p>
-          </div>
+          
 
           <div v-if="department.description" class="md:col-span-2">
             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">

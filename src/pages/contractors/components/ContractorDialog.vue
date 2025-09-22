@@ -43,6 +43,7 @@
             </label>
             <input
               v-model="form.email"
+              v-email
               type="email"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
               placeholder="Введите email"
@@ -83,9 +84,14 @@
             <input
               v-model="form.inn"
               type="text"
+              maxlength="12"
+              inputmode="numeric"
+              pattern="\\d*"
+              @input="onInnInput"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Введите ИНН"
+              placeholder="000000000000"
             />
+            <p v-if="errors.inn" class="mt-1 text-xs text-red-600">{{ errors.inn }}</p>
           </div>
         </div>
 
@@ -150,6 +156,15 @@ const form = reactive({
   status: 'active',
   inn: ''
 })
+
+const errors = reactive({ inn: '' })
+
+const onInnInput = (e: Event) => {
+  const target = e.target as HTMLInputElement
+  const digits = (target.value || '').replace(/\D/g, '').slice(0, 12)
+  form.inn = digits
+  errors.inn = digits.length === 0 || digits.length === 12 ? '' : 'ИНН должен содержать ровно 12 цифр'
+}
 
 // Обработка изменения компании
 const onOrganizationChange = () => {

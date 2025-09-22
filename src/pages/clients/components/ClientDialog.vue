@@ -73,6 +73,12 @@
               forceSelection="false"
               class="w-full"
               inputClass="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              appendTo="body"
+              :pt="{
+                overlay: { class: 'z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg' },
+                list: { class: 'max-h-60 overflow-y-auto' },
+                item: { class: 'px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer' }
+              }"
               placeholder="Найдите или введите название компании"
               @item-select="onCompanySelect"
             >
