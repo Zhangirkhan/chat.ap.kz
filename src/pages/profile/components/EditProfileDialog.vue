@@ -40,9 +40,11 @@
           </label>
           <input
             v-model="form.phone"
+            v-phone
             type="tel"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             :class="{ 'border-red-500': errors.phone }"
+            placeholder="8 777 123 45 67"
           />
           <p v-if="errors.phone" class="mt-1 text-sm text-red-600 dark:text-red-400">
             {{ errors.phone }}

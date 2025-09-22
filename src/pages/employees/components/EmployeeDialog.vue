@@ -50,35 +50,15 @@
             </label>
             <input
               v-model="form.phone"
+              v-phone
               type="tel"
               required
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Введите телефон"
+              placeholder="8 777 123 45 67"
             />
           </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Дата рождения
-            </label>
-            <input
-              v-model="form.birth_date"
-              type="date"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-            />
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Паспорт
-            </label>
-            <input
-              v-model="form.passport"
-              type="text"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Введите номер паспорта"
-            />
-          </div>
+          
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -94,17 +74,7 @@
           </div>
         </div>
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Адрес
-          </label>
-          <input
-            v-model="form.address"
-            type="text"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-            placeholder="Введите адрес"
-          />
-        </div>
+        
 
         <!-- Рабочая информация -->
         <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
@@ -161,29 +131,7 @@
               </select>
             </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Дата приема на работу
-              </label>
-              <input
-                v-model="form.hire_date"
-                type="date"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Зарплата (тенге)
-              </label>
-              <input
-                v-model.number="form.salary"
-                type="number"
-                min="0"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                placeholder="0"
-              />
-            </div>
+            
           </div>
         </div>
 
@@ -245,14 +193,11 @@ const form = reactive({
   name: '',
   email: '',
   phone: '',
-  birth_date: '',
-  passport: '',
-  address: '',
+  
   organization_id: '',
   department_id: '',
   position_id: '',
-  hire_date: '',
-  salary: 0,
+  
   status: 'active'
 })
 
@@ -286,14 +231,11 @@ const initForm = () => {
       name: props.employee.name || '',
       email: props.employee.email || '',
       phone: props.employee.phone || '',
-      birth_date: props.employee.birth_date || '',
-      passport: props.employee.passport || '',
-      address: props.employee.address || '',
+      
       organization_id: props.employee.organization_id || '',
       department_id: props.employee.department_id || '',
       position_id: props.employee.position_id || '',
-      hire_date: props.employee.hire_date || '',
-      salary: props.employee.salary || 0,
+      
       status: props.employee.status || 'active'
     })
   } else {
@@ -301,14 +243,11 @@ const initForm = () => {
       name: '',
       email: '',
       phone: '',
-      birth_date: '',
-      passport: '',
-      address: '',
+      
       organization_id: '',
       department_id: '',
       position_id: '',
-      hire_date: '',
-      salary: 0,
+      
       status: 'active'
     })
   }

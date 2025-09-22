@@ -38,10 +38,11 @@
             </label>
             <input
               v-model="formData.phone"
+              v-phone
               type="tel"
               required
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="+7 (777) 123-45-67"
+              placeholder="8 777 123 45 67"
             />
           </div>
 
@@ -58,51 +59,33 @@
             />
           </div>
 
-          <!-- Компания -->
+          <!-- Компания (поиск как select2) -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Компания
             </label>
-            <div class="space-y-3">
-              <!-- Поиск существующей компании -->
-              <div>
-                <select
-                  v-model="selectedCompanyId"
-                  @change="handleCompanySelect"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                >
-                  <option value="">Выберите компанию (необязательно)</option>
-                  <option v-for="company in companies" :key="company.id" :value="company.id">
-                    {{ company.name }} {{ company.inn ? `(${company.inn})` : '' }}
-                  </option>
-                </select>
-              </div>
-
-              <!-- Или создать новую компанию -->
-              <div class="text-center">
-                <span class="text-sm text-gray-500 dark:text-gray-400">или</span>
-              </div>
-
-              <div>
-                <input
-                  v-model="newCompanyName"
-                  @input="handleNewCompanyInput"
-                  type="text"
-                  :disabled="isSubmitting"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-600 disabled:cursor-not-allowed"
-                  placeholder="Введите название новой компании"
-                />
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  <span v-if="isCreatingCompany" class="text-blue-600 dark:text-blue-400">
-                    <i class="pi pi-spin pi-spinner mr-1"></i>
-                    Создаем компанию...
-                  </span>
-                  <span v-else>
-                    Если компании нет в списке, введите её название - она будет создана автоматически
-                  </span>
-                </p>
-              </div>
-            </div>
+            <AutoComplete
+              v-model="companyInput"
+              :suggestions="companySuggestions"
+              @complete="onCompanySearch"
+              optionLabel="name"
+              dropdown
+              forceSelection="false"
+              class="w-full"
+              inputClass="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder="Найдите или введите название компании"
+              @item-select="onCompanySelect"
+            >
+              <template #item="slotProps">
+                <div class="flex flex-col">
+                  <span class="text-sm text-gray-900 dark:text-white">{{ slotProps.item.name }}</span>
+                  <span v-if="slotProps.item.inn" class="text-xs text-gray-500 dark:text-gray-400">ИНН/БИН: {{ slotProps.item.inn }}</span>
+                </div>
+              </template>
+            </AutoComplete>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Можно выбрать из списка или ввести новое название — компания создастся автоматически
+            </p>
           </div>
 
           <!-- Комментарий -->
@@ -160,6 +143,7 @@
 import { ref, watch } from 'vue'
 import type { Client, CreateClientData, UpdateClientData, Company } from '@/shared/api/clients'
 import { companiesApi } from '@/shared/api/companies'
+import AutoComplete from 'primevue/autocomplete'
 
 interface Props {
   client?: Client
@@ -190,6 +174,35 @@ const newCompanyName = ref('')
 const isCreatingCompany = ref(false)
 const isSubmitting = ref(false)
 
+// Автодополнение компаний
+const companyInput = ref<string>('')
+const companySuggestions = ref<Company[]>([])
+
+const onCompanySearch = async (event: { query: string }) => {
+  const query = event.query?.trim() || ''
+  // Пустой запрос — показываем первые компании из props
+  if (!query) {
+    companySuggestions.value = props.companies.slice(0, 10)
+    return
+  }
+
+  try {
+    const response = await companiesApi.getCompanies({ search: query, per_page: 10 })
+    companySuggestions.value = response.data || []
+  } catch {
+    companySuggestions.value = []
+  }
+}
+
+const onCompanySelect = (e: { value: Company }) => {
+  const company = e.value
+  if (company && company.id) {
+    selectedCompanyId.value = company.id
+    formData.value.company_id = company.id
+    newCompanyName.value = ''
+  }
+}
+
 // Заполняем форму данными при редактировании
 watch(() => props.client, (client) => {
   if (client) {
@@ -202,6 +215,9 @@ watch(() => props.client, (client) => {
       is_active: client.is_active
     }
     selectedCompanyId.value = client.company_id || ''
+    // Инициализируем ввод компании текущим названием
+    const currentCompany = props.companies.find(c => c.id === client.company_id)
+    companyInput.value = currentCompany?.name || ''
   }
 }, { immediate: true })
 

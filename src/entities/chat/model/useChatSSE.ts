@@ -27,7 +27,7 @@ export function useChatSSE() {
       }
 
       // Создаем SSE соединение с токеном в URL (так как EventSource не поддерживает заголовки)
-      const url = `https://back-chat.ap.kz/api/chat-stream/${chatId}/stream?token=${encodeURIComponent(token)}`
+      const url = `https://back-ERP.AP.KZ/api/chat-stream/${chatId}/stream?token=${encodeURIComponent(token)}`
       eventSource.value = new EventSource(url, {
         withCredentials: true
       })
@@ -109,7 +109,7 @@ export function useChatSSE() {
   const getChatStatus = async (chatId: number) => {
     try {
       // Используем fetch напрямую, так как chatApi не имеет метода get
-      const response = await fetch(`https://back-chat.ap.kz/api/chat-stream/${chatId}/status`, {
+      const response = await fetch(`https://back-ERP.AP.KZ/api/chat-stream/${chatId}/status`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json'

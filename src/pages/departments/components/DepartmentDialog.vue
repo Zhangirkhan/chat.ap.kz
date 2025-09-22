@@ -85,50 +85,7 @@
           ></textarea>
         </div>
 
-        <!-- Дополнительная информация -->
-        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Дополнительная информация</h3>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Количество сотрудников
-              </label>
-              <input
-                v-model.number="form.employee_count"
-                type="number"
-                min="0"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                placeholder="0"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Бюджет отдела (тенге)
-              </label>
-              <input
-                v-model.number="form.budget"
-                type="number"
-                min="0"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                placeholder="0"
-              />
-            </div>
-          </div>
-
-          <div class="mt-4">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Контактная информация
-            </label>
-            <input
-              v-model="form.contact_info"
-              type="text"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Телефон, email или другие контакты"
-            />
-          </div>
-        </div>
+        
 
         <!-- Настройки чат-бота -->
         <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
@@ -219,9 +176,6 @@ const form = reactive({
   manager: '',
   organization_id: '' as string | number,
   status: 'active' as 'active' | 'inactive',
-  employee_count: 0,
-  budget: 0,
-  contact_info: '',
   show_in_chatbot: false,
   chatbot_order: 1
 })
@@ -235,9 +189,6 @@ const initForm = () => {
       manager: props.department.manager || '',
       organization_id: props.department.organization_id || '',
       status: props.department.status || 'active',
-      employee_count: props.department.employee_count || 0,
-      budget: props.department.budget || 0,
-      contact_info: props.department.contact_info || '',
       show_in_chatbot: props.department.show_in_chatbot || false,
       chatbot_order: props.department.chatbot_order || 1
     })
@@ -248,44 +199,26 @@ const initForm = () => {
       manager: '',
       organization_id: '',
       status: 'active',
-      employee_count: 0,
-      budget: 0,
-      contact_info: '',
       show_in_chatbot: false,
       chatbot_order: 1
     })
   }
 }
 
-// Отправка формы
+// Отправка формы (делегируем сохранение родителю)
 const handleSubmit = async () => {
   loading.value = true
-
   try {
-    let result: { data: Department }
-
-    if (props.department) {
-      // Обновление существующего отдела
-      result = await departmentApi.updateDepartment(props.department.id, {
-        name: form.name,
-        description: form.description || undefined,
-        organization_id: Number(form.organization_id),
-        show_in_chatbot: form.show_in_chatbot,
-        chatbot_order: form.chatbot_order
-      })
-    } else {
-      // Создание нового отдела
-      result = await departmentApi.createDepartment({
-        name: form.name,
-        description: form.description || undefined,
-        organization_id: Number(form.organization_id),
-        show_in_chatbot: form.show_in_chatbot,
-        chatbot_order: form.chatbot_order
-      })
+    const payload = {
+      name: form.name,
+      description: form.description || undefined,
+      organization_id: Number(form.organization_id),
+      // @ts-expect-error: для create поле может отсутствовать в типе
+      status: form.status,
+      show_in_chatbot: form.show_in_chatbot,
+      chatbot_order: form.chatbot_order
     }
-
-    emit('save', result.data)
-  } catch (error) {
+    emit('save', payload)
   } finally {
     loading.value = false
   }

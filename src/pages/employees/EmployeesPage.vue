@@ -523,8 +523,10 @@ watch(searchQuery, () => {
 })
 
 onMounted(() => {
-  // Загружаем только сотрудников - организации и отделы загружаются по требованию
   loadEmployees()
+  loadOrganizations()
+  loadDepartments()
+  loadPositions()
 })
 </script>
 

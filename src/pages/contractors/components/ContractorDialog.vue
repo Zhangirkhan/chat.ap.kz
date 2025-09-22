@@ -55,10 +55,11 @@
             </label>
             <input
               v-model="form.phone"
+              v-phone
               type="tel"
               required
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Введите телефон"
+              placeholder="8 777 123 45 67"
             />
           </div>
 

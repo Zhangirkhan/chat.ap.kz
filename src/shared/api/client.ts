@@ -1,5 +1,5 @@
 // Конфигурация API
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://back-chat.ap.kz/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://back-erp.ap.kz/api'
 const API_TIMEOUT = 60000 // 60 секунд
 
 interface ApiResponse<T> {

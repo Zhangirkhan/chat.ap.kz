@@ -162,6 +162,24 @@ a,
 }
 
 /* ========================================
+   КРУПНЕЕ ЧЕКБОКСЫ (в 2 раза)
+   ======================================== */
+/* Нативные чекбоксы */
+input[type="checkbox"] {
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+}
+
+/* PrimeVue чекбокс, если используется */
+.p-checkbox .p-checkbox-box {
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+}
+.p-checkbox .p-checkbox-icon {
+  font-size: 1rem !important;
+}
+
+/* ========================================
    PRIMEVUE CONFIRM DIALOG СТИЛИ
    ======================================== */
 

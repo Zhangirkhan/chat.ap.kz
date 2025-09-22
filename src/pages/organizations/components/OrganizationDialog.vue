@@ -53,12 +53,11 @@
             </label>
             <input
               v-model="form.phone"
+              v-phone
               type="tel"
               required
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="+7 (___) ___-__-__"
-              @input="formatPhone"
-              maxlength="18"
+              placeholder="8 777 123 45 67"
             />
             <p v-if="errors.phone" class="text-red-500 text-xs mt-1">{{ errors.phone }}</p>
           </div>
@@ -131,10 +130,10 @@
                 </label>
                 <input
                   v-model="form.wazzup24_api_key"
-                  type="password"
+                  type="text"
                   :required="form.wazzup24_enabled"
                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="Введите API ключ от Wazzup24"
+                  placeholder="***"
                 />
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   API ключ можно получить в личном кабинете Wazzup24
@@ -171,37 +170,43 @@
 
                 <!-- Список доступных каналов -->
                 <div v-if="availableChannels.length > 0" class="mt-2">
-                  <p class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Доступные каналы:</p>
                   <div class="space-y-1">
                     <button
                       v-for="channel in availableChannels"
                       :key="channel.channelId"
                       type="button"
                       @click="selectChannel(channel)"
-                      class="w-full text-left px-2 py-1 text-xs bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded border transition-colors"
+                      class="w-full text-left px-2 py-1 text-xs bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 transition-colors"
                     >
                       <span class="font-mono">{{ channel.channelId }}</span>
-                      <span class="text-gray-500 ml-2">{{ channel.name }}</span>
-                      <span v-if="channel.phone" class="text-gray-400 ml-1">({{ channel.phone }})</span>
+                      <span class="text-gray-600 dark:text-gray-300 ml-2">{{ channel.name }}</span>
+                      <span v-if="channel.phone" class="text-gray-500 dark:text-gray-400 ml-1">({{ channel.phone }})</span>
+                      <span
+                        v-if="channel.status || channel.state"
+                        class="ml-2 text-[10px] px-1.5 py-0.5 rounded uppercase tracking-wide"
+                        :class="[
+                          (channel.status || channel.state) === 'active' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' :
+                          (channel.status || channel.state) === 'qridle' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300' :
+                          'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                        ]"
+                      >
+                        {{ (channel.status || channel.state) }}
+                      </span>
                     </button>
                   </div>
-                </div>
-              </div>
-
-              <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-                <div class="flex items-start gap-3">
-                  <i class="pi pi-info-circle text-green-500 mt-0.5"></i>
-                  <div class="text-sm text-green-700 dark:text-green-300">
-                    <p class="font-medium mb-1">Как получить данные для интеграции:</p>
-                    <ol class="list-decimal list-inside space-y-1 text-xs">
-                      <li>Зарегистрируйтесь в <a href="https://wazzup24.com" target="_blank" class="underline">Wazzup24</a></li>
-                      <li>Подключите свой номер WhatsApp</li>
-                      <li>В разделе API получите ключ и ID канала</li>
-                      <li>Укажите эти данные в форме выше</li>
-                    </ol>
+                  <!-- Текстовый список ID (без заголовка) -->
+                  <div class="mt-2">
+                    <textarea
+                      readonly
+                      class="w-full text-xs font-mono px-2 py-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+                      rows="3"
+                    >{{ availableChannels.map(c => c.channelId).join('\n') }}</textarea>
                   </div>
                 </div>
+                <p v-else-if="channelsMessage" class="text-xs mt-2" :class="channelsError ? 'text-red-600' : 'text-gray-700 dark:text-gray-300'">{{ channelsMessage }}</p>
               </div>
+
+              
 
               <!-- Webhook настройки Wazzup24 -->
               <div v-if="form.wazzup24_enabled" class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
@@ -223,36 +228,12 @@
                     </p>
                   </div>
 
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Webhook Token
-                    </label>
-                    <input
-                      v-model="form.webhook_token"
-                      type="text"
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:text-white"
-                      placeholder="webhook_secret_token"
-                    />
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      Секретный токен для проверки подлинности webhook'ов
-                    </p>
-                  </div>
+                  
                 </div>
               </div>
 
               <!-- Кнопки действий -->
               <div v-if="form.wazzup24_api_key && form.wazzup24_channel_id" class="flex items-center gap-2 mt-4">
-                <button
-                  type="button"
-                  @click="testWazzupConnection"
-                  :disabled="testingWazzup"
-                  class="px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-white rounded-lg transition-colors duration-200 flex items-center gap-2"
-                >
-                  <i v-if="testingWazzup" class="pi pi-spin pi-spinner"></i>
-                  <i v-else class="pi pi-whatsapp"></i>
-                  {{ testingWazzup ? 'Тестирование...' : 'Проверить подключение' }}
-                </button>
-
                 <button
                   type="button"
                   @click="setupWazzupWebhooks"
@@ -263,13 +244,6 @@
                   <i v-else class="pi pi-link"></i>
                   {{ settingUpWebhooks ? 'Настраиваем...' : 'Подключить webhook' }}
                 </button>
-
-                <span v-if="wazzupTestResult" :class="[
-                  'text-sm',
-                  wazzupTestResult.success ? 'text-green-600' : 'text-red-600'
-                ]">
-                  {{ wazzupTestResult.message }}
-                </span>
 
                 <span v-if="webhookSetupResult" :class="[
                   'text-sm ml-2',
@@ -338,10 +312,11 @@ const props = defineProps<{
 const emit = defineEmits(['close', 'save'])
 
 const loading = ref(false)
-const testingWazzup = ref(false)
-const wazzupTestResult = ref<{ success: boolean; message: string } | null>(null)
+// Убрана проверка подключения Wazzup
 const loadingChannels = ref(false)
 const availableChannels = ref<Array<{ channelId: string; name: string; phone?: string; status?: string }>>([])
+const channelsMessage = ref<string>('')
+const channelsError = ref<boolean>(false)
 const settingUpWebhooks = ref(false)
 const webhookSetupResult = ref<{ success: boolean; message: string } | null>(null)
 
@@ -350,6 +325,7 @@ interface WazzupChannel {
   name: string
   phone?: string
   status?: string
+  state?: string
   chatType?: string
 }
 
@@ -371,50 +347,7 @@ const form = reactive({
   is_active: true
 })
 
-// Форматирование номера телефона
-const formatPhone = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  let value = target.value.replace(/\D/g, '') // Удаляем все нецифровые символы
-
-  // Если номер начинается с 8, заменяем на 7
-  if (value.startsWith('8')) {
-    value = '7' + value.slice(1)
-  }
-
-  // Если номер не начинается с 7, добавляем 7
-  if (!value.startsWith('7') && value.length > 0) {
-    value = '7' + value
-  }
-
-  // Ограничиваем длину (7 + 10 цифр)
-  if (value.length > 11) {
-    value = value.slice(0, 11)
-  }
-
-  // Форматируем номер
-  let formatted = ''
-  if (value.length > 0) {
-    formatted = '+7'
-    if (value.length > 1) {
-      formatted += ' (' + value.slice(1, 4)
-      if (value.length >= 4) {
-        formatted += ')'
-      }
-    }
-    if (value.length > 4) {
-      formatted += ' ' + value.slice(4, 7)
-    }
-    if (value.length > 7) {
-      formatted += '-' + value.slice(7, 9)
-    }
-    if (value.length > 9) {
-      formatted += '-' + value.slice(9, 11)
-    }
-  }
-
-  form.phone = formatted
-  errors.phone = ''
-}
+// Убрали локальное форматирование, применяется v-phone
 
 // Валидация телефона
 const validatePhone = () => {
@@ -522,55 +455,56 @@ const formatPhoneFromString = (phoneString: string) => {
 
 
 
-// Тестирование подключения к Wazzup24
-const testWazzupConnection = async () => {
-  if (!form.wazzup24_api_key || !form.wazzup24_channel_id) {
-    wazzupTestResult.value = {
-      success: false,
-      message: 'Заполните API ключ и ID канала'
-    }
+// Удалена функция testWazzupConnection
+
+// Загрузка каналов из Wazzup24
+const loadWazzupChannels = async () => {
+  if (!form.wazzup24_api_key || !props.organization?.id) {
+    channelsMessage.value = 'Введите API ключ и сохраните организацию, затем повторите.'
+    channelsError.value = true
     return
   }
 
-  if (!props.organization?.id) {
-    wazzupTestResult.value = {
-      success: false,
-      message: 'ID организации не найден'
-    }
-    return
-  }
-
-  testingWazzup.value = true
-  wazzupTestResult.value = null
+  loadingChannels.value = true
+  availableChannels.value = []
+  channelsMessage.value = ''
+  channelsError.value = false
 
   try {
 
-    // Реальный запрос к API тестирования подключения
-    const response = await organizationApi.testWazzupConnection(props.organization.id)
+    const response = await organizationApi.getWazzupChannels(props.organization.id)
 
+    // Поддержка обоих форматов ответа: { success, channels, error } ИЛИ { data: { success, channels, error } }
+    const raw: any = response as any
+    const success = (raw && typeof raw === 'object' && 'success' in raw) ? raw.success : raw?.data?.success
+    const channels = (raw && typeof raw === 'object' && 'channels' in raw) ? raw.channels : raw?.data?.channels
+    const errMsg = (raw && typeof raw === 'object' && 'error' in raw) ? raw.error : (raw?.data?.error || raw?.message)
 
-    if (response.data?.success) {
-      const channelsCount = response.data?.data?.length || 0
-      wazzupTestResult.value = {
-        success: true,
-        message: `Подключение успешно! Найдено каналов: ${channelsCount}`
+    if (success && Array.isArray(channels)) {
+      availableChannels.value = channels.map((channel: any) => ({
+        channelId: channel.channelId,
+        name: channel.name || 'Unnamed Channel',
+        phone: channel.phone,
+        status: channel.status || channel.state,
+        state: channel.state
+      }))
+      if (availableChannels.value.length === 0) {
+        channelsMessage.value = 'Каналы не найдены для данного ключа.'
+        channelsError.value = false
+      } else {
+        channelsMessage.value = `${availableChannels.value.length} канал(ов) загружено.`
+        channelsError.value = false
       }
     } else {
-      wazzupTestResult.value = {
-        success: false,
-        message: response.data?.error || 'Не удалось подключиться к Wazzup24'
-      }
+      channelsMessage.value = errMsg || 'Не удалось загрузить каналы. Проверьте API ключ.'
+      channelsError.value = true
     }
   } catch (error: unknown) {
-
-    // Извлекаем детальную ошибку из ответа API
-    let errorMessage = 'Ошибка подключения к Wazzup24'
-
+    let errorMessage = 'Ошибка загрузки каналов'
     if (error && typeof error === 'object') {
       const err = error as Record<string, unknown>
       const response = err.response as Record<string, unknown> | undefined
       const data = response?.data as Record<string, unknown> | undefined
-
       if (data?.message && typeof data.message === 'string') {
         errorMessage = data.message
       } else if (data?.error && typeof data.error === 'string') {
@@ -581,41 +515,8 @@ const testWazzupConnection = async () => {
     } else if (typeof error === 'string') {
       errorMessage = error
     }
-
-    wazzupTestResult.value = {
-      success: false,
-      message: errorMessage
-    }
-  } finally {
-    testingWazzup.value = false
-  }
-}
-
-// Загрузка каналов из Wazzup24
-const loadWazzupChannels = async () => {
-  if (!form.wazzup24_api_key || !props.organization?.id) {
-    return
-  }
-
-  loadingChannels.value = true
-  availableChannels.value = []
-
-  try {
-
-    const response = await organizationApi.getWazzupChannels(props.organization.id)
-
-
-    if (response.data?.success && response.data?.channels) {
-      availableChannels.value = response.data.channels.map((channel: WazzupChannel) => ({
-        channelId: channel.channelId,
-        name: channel.name || 'Unnamed Channel',
-        phone: channel.phone,
-        status: channel.status
-      }))
-
-    } else {
-    }
-  } catch (error: unknown) {
+    channelsMessage.value = errorMessage
+    channelsError.value = true
   } finally {
     loadingChannels.value = false
   }
@@ -643,8 +544,12 @@ const setupWazzupWebhooks = async () => {
 
     const response = await organizationApi.setupWazzupWebhooks(props.organization.id)
 
+    // Поддержка обоих форматов ответа: { success, data, error } ИЛИ { data: { success, error } }
+    const raw: any = response as any
+    const success = (raw && typeof raw === 'object' && 'success' in raw) ? raw.success : raw?.data?.success
+    const errMsg = (raw && typeof raw === 'object' && 'error' in raw) ? raw.error : (raw?.data?.error || raw?.message)
 
-    if (response.data?.success) {
+    if (success) {
       webhookSetupResult.value = {
         success: true,
         message: 'Webhook успешно настроен!'
@@ -652,7 +557,7 @@ const setupWazzupWebhooks = async () => {
     } else {
       webhookSetupResult.value = {
         success: false,
-        message: response.data?.error || 'Не удалось настроить webhook'
+        message: errMsg || 'Не удалось настроить webhook'
       }
     }
   } catch (error: unknown) {

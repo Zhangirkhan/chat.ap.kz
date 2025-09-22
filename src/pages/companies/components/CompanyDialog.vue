@@ -36,10 +36,10 @@
             />
           </div>
 
-          <!-- ИНН -->
+          <!-- ИНН/БИН -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              ИНН
+              ИНН/БИН
             </label>
             <input
               v-model="formData.inn"
@@ -47,34 +47,6 @@
               maxlength="20"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
               placeholder="123456789012"
-            />
-          </div>
-
-          <!-- КПП -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              КПП
-            </label>
-            <input
-              v-model="formData.kpp"
-              type="text"
-              maxlength="20"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="123456789"
-            />
-          </div>
-
-          <!-- ОГРН -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              ОГРН
-            </label>
-            <input
-              v-model="formData.ogrn"
-              type="text"
-              maxlength="20"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="1234567890123"
             />
           </div>
 
@@ -90,9 +62,10 @@
             </label>
             <input
               v-model="formData.phone"
+              v-phone
               type="tel"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="+7 (777) 123-45-67"
+              placeholder="8 777 123 45 67"
             />
           </div>
 
@@ -109,18 +82,7 @@
             />
           </div>
 
-          <!-- Сайт -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Веб-сайт
-            </label>
-            <input
-              v-model="formData.website"
-              type="url"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="https://company.kz"
-            />
-          </div>
+          
 
           <!-- Адреса -->
           <div class="md:col-span-2 pt-4">
@@ -153,49 +115,7 @@
             ></textarea>
           </div>
 
-          <!-- Контактное лицо -->
-          <div class="md:col-span-2 pt-4">
-            <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-4">Контактное лицо</h4>
-          </div>
-
-          <!-- ФИО контактного лица -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              ФИО
-            </label>
-            <input
-              v-model="formData.contact_person"
-              type="text"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Иванов Иван Иванович"
-            />
-          </div>
-
-          <!-- Телефон контактного лица -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Телефон
-            </label>
-            <input
-              v-model="formData.contact_phone"
-              type="tel"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="+7 (777) 987-65-43"
-            />
-          </div>
-
-          <!-- Email контактного лица -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Email контактного лица
-            </label>
-            <input
-              v-model="formData.contact_email"
-              type="email"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="contact@company.kz"
-            />
-          </div>
+          
 
           <!-- Банковские реквизиты -->
           <div class="md:col-span-2 pt-4">
@@ -295,16 +215,12 @@ const emit = defineEmits<{
 const formData = ref<CreateCompanyData>({
   name: '',
   inn: '',
-  kpp: '',
-  ogrn: '',
+  
   legal_address: '',
   actual_address: '',
   phone: '',
   email: '',
-  website: '',
-  contact_person: '',
-  contact_phone: '',
-  contact_email: '',
+  
   bank_name: '',
   bank_account: '',
   bik: '',
@@ -317,16 +233,11 @@ watch(() => props.company, (company) => {
     formData.value = {
       name: company.name,
       inn: company.inn || '',
-      kpp: company.kpp || '',
-      ogrn: company.ogrn || '',
       legal_address: company.legal_address || '',
       actual_address: company.actual_address || '',
       phone: company.phone || '',
       email: company.email || '',
-      website: company.website || '',
-      contact_person: company.contact_person || '',
-      contact_phone: company.contact_phone || '',
-      contact_email: company.contact_email || '',
+      
       bank_name: company.bank_name || '',
       bank_account: company.bank_account || '',
       bik: company.bik || '',

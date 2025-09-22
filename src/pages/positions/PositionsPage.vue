@@ -162,6 +162,8 @@ import { positionsApi, type Position, type CreatePositionData, type UpdatePositi
 import PositionDialog from './components/PositionDialog.vue'
 import PositionViewDialog from './components/PositionViewDialog.vue'
 import { useToast } from 'primevue/usetoast'
+import { organizationApi } from '@/entities/organization/api/organizationApi'
+import { departmentApi } from '@/entities/department/api/departmentApi'
 
 const toast = useToast()
 const searchQuery = ref('')
@@ -207,114 +209,33 @@ const formatSalary = (salary: any) => {
 }
 
 const loadOrganizations = async () => {
-  // Здесь должен быть API запрос для получения организаций
-  organizations.value = [
-    {
-      id: 1,
-      name: 'ООО Компания',
-      email: 'info@company.com',
-      phone: '+7 777 123 45 67',
-      address: 'г. Алматы, ул. Абая, 1',
-      description: 'Крупная IT компания',
-      webhook_url: 'https://webhook.site/12345678-1234-1234-1234-123456789012',
-      webhook_token: 'token_123456789',
-      users_count: 25,
-      status: 'active',
-      created_at: '2024-01-01T12:00:00.000000Z'
-    },
-    {
-      id: 2,
-      name: 'ТОО Стартап',
-      email: 'hello@startup.kz',
-      phone: '+7 777 987 65 43',
-      address: 'г. Нур-Султан, ул. Кенесары, 10',
-      description: 'Инновационный стартап',
-      webhook_url: null,
-      webhook_token: null,
-      users_count: 8,
-      status: 'active',
-      created_at: '2024-01-05T09:00:00.000000Z'
-    },
-    {
-      id: 3,
-      name: 'ИП Иванов',
-      email: 'ivanov@example.com',
-      phone: '+7 777 555 44 33',
-      address: 'г. Шымкент, ул. Байтурсынова, 5',
-      description: 'Индивидуальный предприниматель',
-      webhook_url: 'https://webhook.site/87654321-4321-4321-4321-210987654321',
-      webhook_token: 'token_987654321',
-      users_count: 1,
-      status: 'inactive',
-      created_at: '2023-12-20T10:00:00.000000Z'
+  try {
+    const response = await organizationApi.getOrganizations({ per_page: 1000 })
+    if (response.data && Array.isArray(response.data)) {
+      organizations.value = response.data
+    } else if (Array.isArray(response)) {
+      organizations.value = response
+    } else {
+      organizations.value = []
     }
-  ]
+  } catch (err) {
+    organizations.value = []
+  }
 }
 
 const loadDepartments = async () => {
-  // Здесь должен быть API запрос для получения отделов
-  departments.value = [
-    {
-      id: 1,
-      name: 'IT отдел',
-      description: 'Разработка и поддержка IT инфраструктуры',
-      manager: 'Иван Петров',
-      organization_id: 1,
-      employee_count: 12,
-      status: 'active',
-      created_at: '2024-01-01T12:00:00.000000Z'
-    },
-    {
-      id: 2,
-      name: 'Отдел продаж',
-      description: 'Работа с клиентами и продажи',
-      manager: 'Мария Сидорова',
-      organization_id: 1,
-      employee_count: 8,
-      status: 'active',
-      created_at: '2024-01-02T10:00:00.000000Z'
-    },
-    {
-      id: 3,
-      name: 'HR отдел',
-      description: 'Управление персоналом',
-      manager: 'Анна Козлова',
-      organization_id: 1,
-      employee_count: 5,
-      status: 'active',
-      created_at: '2024-01-03T09:00:00.000000Z'
-    },
-    {
-      id: 4,
-      name: 'Отдел разработки',
-      description: 'Создание программного обеспечения',
-      manager: 'Алексей Смирнов',
-      organization_id: 2,
-      employee_count: 15,
-      status: 'active',
-      created_at: '2024-01-04T11:00:00.000000Z'
-    },
-    {
-      id: 5,
-      name: 'Маркетинг',
-      description: 'Продвижение продуктов и услуг',
-      manager: 'Елена Волкова',
-      organization_id: 2,
-      employee_count: 6,
-      status: 'active',
-      created_at: '2024-01-05T14:00:00.000000Z'
-    },
-    {
-      id: 6,
-      name: 'Бухгалтерия',
-      description: 'Финансовый учет и отчетность',
-      manager: 'Ольга Новикова',
-      organization_id: 3,
-      employee_count: 3,
-      status: 'inactive',
-      created_at: '2024-01-06T16:00:00.000000Z'
+  try {
+    const response = await departmentApi.getDepartments({ per_page: 1000 })
+    if (response.data && Array.isArray(response.data)) {
+      departments.value = response.data
+    } else if (Array.isArray(response)) {
+      departments.value = response
+    } else {
+      departments.value = []
     }
-  ]
+  } catch (err) {
+    departments.value = []
+  }
 }
 
 const loadPositions = async () => {
@@ -488,6 +409,8 @@ watch(searchQuery, () => {
 
 onMounted(() => {
   loadPositions()
+  loadOrganizations()
+  loadDepartments()
 })
 </script>
 

@@ -9,6 +9,7 @@ import App from './app/providers/AppProvider.vue'
 import router from './app/router'
 import { apiClient } from '@/shared/api/client'
 import { useAuthStore } from '@/features/auth'
+import { phoneMask } from '@/shared/directives/phoneMask'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -17,6 +18,9 @@ app.use(router)
 app.use(PrimeVue)
 app.use(ToastService)
 app.use(ConfirmationService)
+
+// Глобальная директива маски телефона
+app.directive('phone', phoneMask as any)
 
 // Инициализация токена из localStorage
 const token = localStorage.getItem('token')

@@ -1,7 +1,7 @@
 // Конфигурация API
 export const API_CONFIG = {
   // Базовый URL бэкенда
-  BACKEND_URL: 'https://back-chat.ap.kz',
+  BACKEND_URL: 'https://back-erp.ap.kz',
 
   // Endpoints
   ENDPOINTS: {

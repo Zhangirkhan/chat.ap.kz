@@ -82,7 +82,7 @@ export function useChats() {
   const createChat = async (contractor: Contractor) => {
     try {
       const user = authStore.user
-      const isAdmin = user?.email === 'admin@chat.ap.kz' || user?.role === 'admin'
+      const isAdmin = user?.email === 'admin@erp.ap.kz' || user?.role === 'admin'
 
       if (!user || (!user.organization?.id && !isAdmin)) {
         toast.add({
