@@ -50,7 +50,7 @@ export function useChatUtils() {
   }
 
   const getMessageTypeIndicator = (message: {type?: string} | null | undefined) => {
-    if (!message || !message.type) return null
+    if (!message?.type) return null
 
     switch (message.type) {
       case 'image':
@@ -65,7 +65,7 @@ export function useChatUtils() {
   }
 
   const getMessageTypeIcon = (message: {type?: string} | null | undefined) => {
-    if (!message || !message.type) return ''
+    if (!message?.type) return ''
 
     switch (message.type) {
       case 'image':

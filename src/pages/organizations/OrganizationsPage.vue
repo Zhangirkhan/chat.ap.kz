@@ -280,8 +280,8 @@ const filteredOrganizations = computed(() => {
   const query = searchQuery.value.toLowerCase()
   return organizations.value.filter(org =>
     org.name.toLowerCase().includes(query) ||
-    (org.description && org.description.toLowerCase().includes(query)) ||
-    (org.slug && org.slug.toLowerCase().includes(query))
+    (org.description?.toLowerCase().includes(query)) ||
+    (org.slug?.toLowerCase().includes(query))
   )
 })
 

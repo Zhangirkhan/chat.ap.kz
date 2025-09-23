@@ -40,22 +40,22 @@ export const organizationApi = {
   },
 
   // Получение отделов организации
-  getOrganizationDepartments: (organizationId: number): Promise<ApiResponse<any[]>> => {
+  getOrganizationDepartments: (organizationId: number): Promise<ApiResponse<Department[]>> => {
     return apiClient.get(`${API_CONFIG.ENDPOINTS.ORGANIZATIONS}/${organizationId}/departments`)
   },
 
   // Получение пользователей организации
-  getOrganizationUsers: (organizationId: number): Promise<ApiResponse<any[]>> => {
+  getOrganizationUsers: (organizationId: number): Promise<ApiResponse<User[]>> => {
     return apiClient.get(`${API_CONFIG.ENDPOINTS.ORGANIZATIONS}/${organizationId}/users`)
   },
 
   // Тестирование подключения к Wazzup24
-  testWazzupConnection: (organizationId: number): Promise<ApiResponse<{success: boolean, error?: string, data?: any}>> => {
+  testWazzupConnection: (organizationId: number): Promise<ApiResponse<{success: boolean, error?: string, data?: unknown}>> => {
     return apiClient.post(`${API_CONFIG.ENDPOINTS.ORGANIZATIONS}/${organizationId}/wazzup24/test-connection`, {})
   },
 
   // Получение каналов Wazzup24
-  getWazzupChannels: (organizationId: number): Promise<ApiResponse<{success: boolean, channels?: any[], error?: string}>> => {
+  getWazzupChannels: (organizationId: number): Promise<ApiResponse<{success: boolean, channels?: unknown[], error?: string}>> => {
     return apiClient.get(`${API_CONFIG.ENDPOINTS.ORGANIZATIONS}/${organizationId}/wazzup24/channels`)
   },
 

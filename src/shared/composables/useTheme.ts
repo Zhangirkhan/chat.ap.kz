@@ -1,58 +1,50 @@
-import { ref, computed, watch, onMounted } from 'vue'
-
-const THEME_KEY = 'chat-admin-theme'
-
-type Theme = 'light' | 'dark'
-
-const theme = ref<Theme>('light')
+import { ref, onMounted } from 'vue'
 
 export function useTheme() {
-  const isDark = computed(() => theme.value === 'dark')
-  const isLight = computed(() => theme.value === 'light')
+  const isDarkMode = ref(false)
+
+  const initTheme = () => {
+    // Проверяем сохраненную тему в localStorage
+    const savedTheme = localStorage.getItem('theme')
+    
+    if (savedTheme) {
+      isDarkMode.value = savedTheme === 'dark'
+    } else {
+      // Если тема не сохранена, проверяем системные настройки
+      isDarkMode.value = window.matchMedia('(prefers-color-scheme: dark)').matches
+    }
+    
+    applyTheme()
+  }
 
   const toggleTheme = () => {
-    theme.value = theme.value === 'light' ? 'dark' : 'light'
+    isDarkMode.value = !isDarkMode.value
+    applyTheme()
   }
 
-  const setTheme = (newTheme: Theme) => {
-    theme.value = newTheme
-  }
-
-  // Сохраняем тему в localStorage
-  watch(theme, (newTheme) => {
-    localStorage.setItem(THEME_KEY, newTheme)
-    applyTheme(newTheme)
-  }, { immediate: true })
-
-  // Применяем тему к документу
-  const applyTheme = (newTheme: Theme) => {
-    const root = document.documentElement
-    if (newTheme === 'dark') {
-      root.classList.add('dark-theme')
-      root.classList.remove('light-theme')
+  const applyTheme = () => {
+    if (isDarkMode.value) {
+      document.documentElement.classList.add('dark')
+      localStorage.setItem('theme', 'dark')
     } else {
-      root.classList.add('light-theme')
-      root.classList.remove('dark-theme')
+      document.documentElement.classList.remove('dark')
+      localStorage.setItem('theme', 'light')
     }
   }
 
-  // Загружаем сохраненную тему при инициализации
+  const setTheme = (theme: 'light' | 'dark') => {
+    isDarkMode.value = theme === 'dark'
+    applyTheme()
+  }
+
   onMounted(() => {
-    const savedTheme = localStorage.getItem(THEME_KEY) as Theme
-    if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
-      theme.value = savedTheme
-    } else {
-      // Определяем системную тему
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      theme.value = prefersDark ? 'dark' : 'light'
-    }
+    initTheme()
   })
 
   return {
-    theme: computed(() => theme.value),
-    isDark,
-    isLight,
+    isDarkMode,
     toggleTheme,
-    setTheme
+    setTheme,
+    initTheme
   }
 }

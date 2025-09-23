@@ -328,7 +328,7 @@ const handleSave = async (contractorData: CreateContractorData | UpdateContracto
         // Проверяем формат ответа
         if (response.contractor) {
           contractors.value[index] = response.contractor
-        } else if ((response as any).data && (response as any).data.id) {
+        } else if ((response as any).data?.id) {
           contractors.value[index] = (response as any).data
         } else if ((response as any).id) {
           contractors.value[index] = response as any
@@ -344,7 +344,7 @@ const handleSave = async (contractorData: CreateContractorData | UpdateContracto
       // Проверяем формат ответа
       if (response.contractor) {
         contractors.value.push(response.contractor)
-      } else if ((response as any).data && (response as any).data.id) {
+      } else if ((response as any).data?.id) {
         contractors.value.push((response as any).data)
       } else if ((response as any).id) {
         contractors.value.push(response as any)

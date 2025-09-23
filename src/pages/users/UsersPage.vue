@@ -99,8 +99,8 @@ const filteredUsers = computed(() => {
   return userStore.users.filter(user =>
     user.name.toLowerCase().includes(query) ||
     user.email.toLowerCase().includes(query) ||
-    (user.phone && user.phone.includes(query)) ||
-    (user.position && user.position.toLowerCase().includes(query))
+    (user.phone?.includes(query)) ||
+    (user.position?.toLowerCase().includes(query))
   )
 })
 

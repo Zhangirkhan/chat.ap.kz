@@ -222,10 +222,10 @@ const filteredEmployees = computed(() => {
   return employees.value.filter(emp =>
     emp.name.toLowerCase().includes(query) ||
     emp.email.toLowerCase().includes(query) ||
-    (emp.phone && emp.phone.includes(query)) ||
-    (emp.position && emp.position.toLowerCase().includes(query)) ||
-    (emp.department && emp.department.name.toLowerCase().includes(query)) ||
-    (emp.organization && emp.organization.name.toLowerCase().includes(query))
+    (emp.phone?.includes(query)) ||
+    (emp.position?.toLowerCase().includes(query)) ||
+    (emp.department?.name.toLowerCase().includes(query)) ||
+    (emp.organization?.name.toLowerCase().includes(query))
   )
 })
 

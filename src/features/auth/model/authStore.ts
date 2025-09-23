@@ -63,7 +63,7 @@ export const useAuthStore = defineStore('auth', () => {
                  const organizationStore = useOrganizationStore()
                  organizationStore.getOrganizations().catch(err => {
                  })
-               } catch (err) {
+               } catch (_err) {
                }
 
                return { success: true, data: response }
@@ -117,7 +117,7 @@ export const useAuthStore = defineStore('auth', () => {
              if (token.value) {
                await authApi.logout()
              }
-           } catch (error) {
+           } catch (_error) {
            } finally {
              clearAuth()
              loading.value = false

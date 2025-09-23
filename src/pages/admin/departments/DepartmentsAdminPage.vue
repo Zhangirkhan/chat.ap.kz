@@ -417,7 +417,7 @@ const filteredDepartments = computed(() => {
     const query = searchQuery.value.toLowerCase()
     filtered = filtered.filter(dept =>
       dept.name.toLowerCase().includes(query) ||
-      (dept.description && dept.description.toLowerCase().includes(query))
+      (dept.description?.toLowerCase().includes(query))
     )
   }
 

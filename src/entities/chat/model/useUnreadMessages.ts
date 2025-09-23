@@ -98,7 +98,7 @@ export function useUnreadMessages() {
         // Обновляем локальное состояние
         unreadCounts.value.set(chatId, 0)
       }
-    } catch (error) {
+      } catch (_error) {
       // Даже если API не сработал, обновляем локально
       unreadCounts.value.set(chatId, 0)
     }

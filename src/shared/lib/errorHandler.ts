@@ -5,7 +5,7 @@
 export interface AppError {
   code: string
   message: string
-  details?: any
+  details?: unknown
   timestamp: string
 }
 
@@ -23,7 +23,7 @@ export class ErrorHandler {
   /**
    * Обработка ошибок API
    */
-  handleApiError(error: any): AppError {
+  handleApiError(error: unknown): AppError {
     const appError: AppError = {
       code: 'API_ERROR',
       message: 'Произошла ошибка при обращении к серверу',
@@ -32,19 +32,20 @@ export class ErrorHandler {
     }
 
     // Определяем тип ошибки
-    if (error.message?.includes('401')) {
+    const errorMessage = (error as { message?: string })?.message || ''
+    if (errorMessage.includes('401')) {
       appError.code = 'UNAUTHORIZED'
       appError.message = 'Сессия истекла. Необходимо войти в систему заново.'
-    } else if (error.message?.includes('403')) {
+    } else if (errorMessage.includes('403')) {
       appError.code = 'FORBIDDEN'
       appError.message = 'Недостаточно прав для выполнения операции'
-    } else if (error.message?.includes('404')) {
+    } else if (errorMessage.includes('404')) {
       appError.code = 'NOT_FOUND'
       appError.message = 'Запрашиваемый ресурс не найден'
-    } else if (error.message?.includes('500')) {
+    } else if (errorMessage.includes('500')) {
       appError.code = 'SERVER_ERROR'
       appError.message = 'Внутренняя ошибка сервера'
-    } else if (error.message?.includes('сети')) {
+    } else if (errorMessage.includes('сети')) {
       appError.code = 'NETWORK_ERROR'
       appError.message = 'Ошибка сети. Проверьте подключение к интернету'
     }
@@ -71,10 +72,10 @@ export class ErrorHandler {
   /**
    * Обработка общих ошибок
    */
-  handleError(error: any): AppError {
+  handleError(error: unknown): AppError {
     const appError: AppError = {
       code: 'UNKNOWN_ERROR',
-      message: error.message || 'Произошла неизвестная ошибка',
+      message: (error as { message?: string })?.message || 'Произошла неизвестная ошибка',
       details: error,
       timestamp: new Date().toISOString()
     }
@@ -107,7 +108,7 @@ export class ErrorHandler {
     this.errorCallbacks.forEach(callback => {
       try {
         callback(error)
-      } catch (e) {
+      } catch (_e) {
       }
     })
   }
@@ -135,11 +136,11 @@ export class ErrorHandler {
 export const errorHandler = ErrorHandler.getInstance()
 
 // Утилиты для работы с ошибками
-export const isApiError = (error: any): error is AppError => {
+export const isApiError = (error: unknown): error is AppError => {
   return error && typeof error === 'object' && 'code' in error && 'message' in error
 }
 
-export const getErrorMessage = (error: any): string => {
+export const getErrorMessage = (error: unknown): string => {
   if (isApiError(error)) {
     return error.message
   }

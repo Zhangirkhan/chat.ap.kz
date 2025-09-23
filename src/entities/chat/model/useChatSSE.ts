@@ -57,11 +57,11 @@ export function useChatSSE() {
             default:
               // Неизвестный тип сообщения
           }
-        } catch (e) {
+        } catch (_e) {
         }
       }
 
-      eventSource.value.onerror = (event) => {
+      eventSource.value.onerror = (_event) => {
         isConnected.value = false
 
         // Автоматическое переподключение с экспоненциальной задержкой
@@ -80,7 +80,7 @@ export function useChatSSE() {
         }
       }
 
-    } catch (err) {
+        } catch (_err) {
       error.value = err instanceof Error ? err.message : 'Failed to connect to chat stream'
     }
   }
@@ -119,7 +119,7 @@ export function useChatSSE() {
       })
       const data = await response.json()
       return data
-    } catch (err) {
+        } catch (_err) {
       return { connected_users: 0, status: 'error' }
     }
   }

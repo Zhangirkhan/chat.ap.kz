@@ -368,9 +368,7 @@ onMounted(async () => {
         // Показываем уведомление если есть непрочитанные и чат не открыт
         if (update.unread_count > 0 &&
             (!selectedChat.value || selectedChat.value.id !== update.chat_id) &&
-            update.last_message &&
-            update.last_message.user &&
-            update.last_message.user.name) {
+            update.last_message?.user?.name) {
           toast.add({
             severity: 'info',
             summary: chatInList.client_name,

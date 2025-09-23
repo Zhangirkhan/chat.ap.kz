@@ -21,7 +21,7 @@ export const setupRouterGuards = (router: Router) => {
       if (authStore.token && !authStore.user && authStore.isInitialized) {
         try {
           await authStore.forceFetchUser()
-        } catch (error) {
+        } catch (_error) {
         }
       }
 

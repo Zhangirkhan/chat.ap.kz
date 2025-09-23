@@ -106,25 +106,6 @@ export interface SystemMessageData {
   message: string
 }
 
-// WebSocket события
-export interface WebSocketEvent {
-  type: 'message' | 'chat_update' | 'user_typing' | 'user_online' | 'user_offline'
-  data: any
-  timestamp: string
-}
-
-export interface TypingEvent {
-  chat_id: number
-  user_id: number
-  user_name: string
-  is_typing: boolean
-}
-
-export interface OnlineStatusEvent {
-  user_id: number
-  is_online: boolean
-  last_seen?: string
-}
 
 export interface Organization {
   id: number

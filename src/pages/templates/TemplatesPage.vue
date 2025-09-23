@@ -269,7 +269,7 @@ const copyTemplate = async (template: Template) => {
     // Проверяем формат ответа
     if (response.template) {
       templates.value.push(response.template)
-    } else if (response.data && response.data.id) {
+    } else if (response.data?.id) {
       templates.value.push(response.data)
     } else if (response.id) {
       templates.value.push(response)
@@ -327,7 +327,7 @@ const handleSave = async (templateData: CreateTemplateData | UpdateTemplateData)
         // Проверяем формат ответа
         if (response.template) {
           templates.value[index] = response.template
-        } else if (response.data && response.data.id) {
+        } else if (response.data?.id) {
           templates.value[index] = response.data
         } else if (response.id) {
           templates.value[index] = response
@@ -343,7 +343,7 @@ const handleSave = async (templateData: CreateTemplateData | UpdateTemplateData)
       // Проверяем формат ответа
       if (response.template) {
         templates.value.push(response.template)
-      } else if (response.data && response.data.id) {
+      } else if (response.data?.id) {
         templates.value.push(response.data)
       } else if (response.id) {
         templates.value.push(response)

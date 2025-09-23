@@ -160,7 +160,7 @@ export const chatApi = {
   },
 
   // Универсальный POST метод
-  post: (url: string, data?: any): Promise<ApiResponse<any>> => {
+  post: (url: string, data?: unknown): Promise<ApiResponse<unknown>> => {
     return apiClient.post(url, data)
   }
 }

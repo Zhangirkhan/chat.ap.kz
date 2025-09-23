@@ -24,7 +24,7 @@ export function useChats() {
       chat.client_email?.toLowerCase().includes(query) ||
       chat.assigned_user?.name.toLowerCase().includes(query) ||
       chat.user?.name.toLowerCase().includes(query) ||
-      (chat.last_message?.message && chat.last_message.message.toLowerCase().includes(query))
+      (chat.last_message?.message?.toLowerCase().includes(query))
     )
 
     return filtered.slice(0, 50) // Максимум 50 результатов

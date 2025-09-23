@@ -1,0 +1,59 @@
+<template>
+  <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+    <h4 class="text-md font-medium text-gray-900 dark:text-white mb-3">Настройки Webhook</h4>
+
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Webhook URL
+        </label>
+        <input
+          v-model="form.webhook_url"
+          type="url"
+          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:text-white"
+          placeholder="https://your-system.com/webhook/wazzup24"
+        />
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          URL для получения webhook'ов от Wazzup24. Оставьте пустым для автоматической генерации.
+        </p>
+      </div>
+    </div>
+
+    <!-- Кнопки действий -->
+    <div v-if="form.wazzup24_api_key && form.wazzup24_channel_id" class="flex items-center gap-2 mt-4">
+      <button
+        type="button"
+        @click="$emit('setupWebhooks')"
+        :disabled="settingUpWebhooks"
+        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white rounded-lg transition-colors duration-200 flex items-center gap-2"
+      >
+        <i v-if="settingUpWebhooks" class="pi pi-spin pi-spinner"></i>
+        <i v-else class="pi pi-link"></i>
+        {{ settingUpWebhooks ? 'Настраиваем...' : 'Подключить webhook' }}
+      </button>
+
+      <span v-if="webhookSetupResult" :class="[
+        'text-sm ml-2',
+        webhookSetupResult.success ? 'text-green-600' : 'text-red-600'
+      ]">
+        {{ webhookSetupResult.message }}
+      </span>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import type { OrganizationFormData } from '@/shared/composables/useOrganizationForm'
+
+interface Props {
+  form: OrganizationFormData
+  settingUpWebhooks: boolean
+  webhookSetupResult: { success: boolean; message: string } | null
+}
+
+defineProps<Props>()
+
+const emit = defineEmits<{
+  setupWebhooks: []
+}>()
+</script>

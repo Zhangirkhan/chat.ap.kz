@@ -45,27 +45,27 @@ export const departmentApi = {
   },
 
   // Получение пользователей отдела
-  getDepartmentUsers: (departmentId: number): Promise<ApiResponse<any[]>> => {
+  getDepartmentUsers: (departmentId: number): Promise<ApiResponse<User[]>> => {
     return apiClient.get(`${API_CONFIG.ENDPOINTS.DEPARTMENTS}/${departmentId}/users`)
   },
 
   // Получение руководителей отдела
-  getDepartmentSupervisors: (departmentId: number): Promise<ApiResponse<any[]>> => {
+  getDepartmentSupervisors: (departmentId: number): Promise<ApiResponse<User[]>> => {
     return apiClient.get(`${API_CONFIG.ENDPOINTS.DEPARTMENTS}/${departmentId}/supervisors`)
   },
 
   // Получение менеджеров отдела
-  getDepartmentManagers: (departmentId: number): Promise<ApiResponse<any[]>> => {
+  getDepartmentManagers: (departmentId: number): Promise<ApiResponse<User[]>> => {
     return apiClient.get(`${API_CONFIG.ENDPOINTS.DEPARTMENTS}/${departmentId}/managers`)
   },
 
   // Назначение руководителя отдела
-  assignSupervisor: (data: AssignDepartmentSupervisorData): Promise<ApiResponse<any>> => {
+  assignSupervisor: (data: AssignDepartmentSupervisorData): Promise<ApiResponse<Department>> => {
     return apiClient.post(`${API_CONFIG.ENDPOINTS.DEPARTMENT_SUPERVISORS}`, data)
   },
 
   // Назначение менеджера отдела
-  assignManager: (data: AssignDepartmentManagerData): Promise<ApiResponse<any>> => {
+  assignManager: (data: AssignDepartmentManagerData): Promise<ApiResponse<Department>> => {
     return apiClient.post(`${API_CONFIG.ENDPOINTS.DEPARTMENT_MANAGERS}`, data)
   },
 

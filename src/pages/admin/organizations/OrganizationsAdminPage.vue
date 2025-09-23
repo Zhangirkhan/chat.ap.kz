@@ -204,7 +204,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import AdminLayout from '@/shared/ui/AdminLayout/AdminLayout.vue'
 import { Header } from '@/widgets'
-import { Button, Input, Card, Dialog, Select, Textarea, Badge } from '@/shared/ui'
+import { Button, Input, Card, Select, Textarea, Badge } from '@/shared/ui'
 import { useOrganizationStore } from '@/entities/organization'
 import type { Organization, CreateOrganizationData, UpdateOrganizationData } from '@/shared/lib/types'
 
@@ -249,8 +249,8 @@ const filteredOrganizations = computed(() => {
     const query = searchQuery.value.toLowerCase()
     filtered = filtered.filter(org =>
       org.name.toLowerCase().includes(query) ||
-      (org.description && org.description.toLowerCase().includes(query)) ||
-      (org.phone && org.phone.includes(query))
+      (org.description?.toLowerCase().includes(query)) ||
+      (org.phone?.includes(query))
     )
   }
 

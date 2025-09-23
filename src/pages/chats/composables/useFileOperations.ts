@@ -23,7 +23,7 @@ export function useFileOperations() {
 
   // Получение иконки для типа файла
   const getFileIcon = (file: File) => {
-    if (!file || !file.name) return 'pi pi-file text-blue-600 dark:text-blue-400'
+    if (!file?.name) return 'pi pi-file text-blue-600 dark:text-blue-400'
 
     const extension = file.name.split('.').pop()?.toLowerCase()
 

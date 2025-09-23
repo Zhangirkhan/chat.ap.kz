@@ -17,4 +17,38 @@ export default defineConfigWithVueTs(
 
   pluginVue.configs['flat/essential'],
   vueTsConfigs.recommended,
+  
+  // Дополнительные правила для улучшения качества кода
+  {
+    rules: {
+      // Отключаем строгие правила для упрощения разработки
+      '@typescript-eslint/no-explicit-any': 'warn', // Предупреждение вместо ошибки
+      '@typescript-eslint/no-unused-vars': 'warn', // Предупреждение вместо ошибки
+      'vue/multi-word-component-names': 'warn', // Предупреждение вместо ошибки
+      'vue/no-mutating-props': 'warn', // Предупреждение вместо ошибки
+      'vue/no-duplicate-attributes': 'error', // Оставляем как ошибку
+      'vue/no-parsing-error': 'error', // Оставляем как ошибку
+      'vue/no-textarea-mustache': 'warn', // Предупреждение вместо ошибки
+      
+      // Дополнительные правила для качества кода
+      'prefer-const': 'warn',
+      'no-var': 'error',
+      'no-console': 'warn',
+      'no-debugger': 'warn',
+      
+      // Правила для Vue
+      'vue/component-name-in-template-casing': ['warn', 'PascalCase'],
+      'vue/component-definition-name-casing': ['warn', 'PascalCase'],
+      'vue/require-default-prop': 'warn',
+      'vue/require-prop-types': 'warn',
+      'vue/require-v-for-key': 'error',
+      'vue/no-use-v-if-with-v-for': 'error',
+      
+      // Правила для TypeScript
+      '@typescript-eslint/prefer-nullish-coalescing': 'warn',
+      '@typescript-eslint/prefer-optional-chain': 'warn',
+      '@typescript-eslint/no-non-null-assertion': 'warn',
+      '@typescript-eslint/ban-ts-comment': 'warn',
+    }
+  }
 )

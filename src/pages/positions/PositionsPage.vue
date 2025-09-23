@@ -179,7 +179,7 @@ const filteredPositions = computed(() => {
   const query = searchQuery.value.toLowerCase()
   return positions.value.filter(pos =>
     pos.name.toLowerCase().includes(query) ||
-    (pos.description && pos.description.toLowerCase().includes(query)) ||
+    (pos.description?.toLowerCase().includes(query)) ||
     (pos.slug && pos.slug.toLowerCase().includes(query))
   )
 })
@@ -306,7 +306,7 @@ const handleSave = async (positionData: CreatePositionData | UpdatePositionData)
         // Проверяем формат ответа
         if (response.position) {
           positions.value[index] = response.position
-        } else if (response.data && response.data.id) {
+        } else if (response.data?.id) {
           positions.value[index] = response.data
         } else if (response.id) {
           positions.value[index] = response
@@ -322,7 +322,7 @@ const handleSave = async (positionData: CreatePositionData | UpdatePositionData)
       // Проверяем формат ответа
       if (response.position) {
         positions.value.push(response.position)
-      } else if (response.data && response.data.id) {
+      } else if (response.data?.id) {
         positions.value.push(response.data)
       } else if (response.id) {
         positions.value.push(response)

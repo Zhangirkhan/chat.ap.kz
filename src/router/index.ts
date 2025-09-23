@@ -5,12 +5,6 @@ const router = createRouter({
   routes: [
     { path: '/', redirect: '/dashboard' },
     {
-      path: '/login',
-      name: 'login',
-      component: () => import('../pages/login/LoginPage.vue'),
-      meta: { requiresGuest: true }
-    },
-    {
       path: '/dashboard',
       name: 'dashboard',
       component: () => import('../pages/dashboard/DashboardPage.vue')
@@ -90,7 +84,7 @@ const router = createRouter({
 })
 
 // Навигационные гарды для защиты маршрутов
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, _from, next) => {
   // Динамически импортируем authStore для избежания циклических зависимостей
   const { useAuthStore } = await import('@/features/auth')
   const authStore = useAuthStore()
@@ -104,12 +98,6 @@ router.beforeEach(async (to, from, next) => {
   const isAuthenticated = authStore.isAuthenticated
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth !== false)
   const requiresGuest = to.matched.some(record => record.meta.requiresGuest === true)
-
-    to: to.path,
-    isAuthenticated,
-    requiresAuth,
-    requiresGuest
-  })
 
   // Если маршрут требует гостевого доступа (например, /login) и пользователь авторизован
   if (requiresGuest && isAuthenticated) {
@@ -127,4 +115,6 @@ router.beforeEach(async (to, from, next) => {
   }
 
   next()
+})
+
 export default router

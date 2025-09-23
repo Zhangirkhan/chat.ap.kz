@@ -157,7 +157,7 @@
     <ConfirmDialog
       v-if="showDeleteDialog"
       :title="'Удаление компании'"
-      :message="`Вы уверены, что хотите удалить компанию \"${selectedCompany?.name}\"?`"
+      :message="`Вы уверены, что хотите удалить компанию '${selectedCompany?.name}'?`"
       @confirm="handleDelete"
       @cancel="closeDialog"
     />
