@@ -86,7 +86,7 @@ const router = createRouter({
 // Навигационные гарды для защиты маршрутов
 router.beforeEach(async (to, _from, next) => {
   // Динамически импортируем authStore для избежания циклических зависимостей
-  const { useAuthStore } = await import('@/features/auth')
+  const { useAuthStore } = await import('@/app/providers/stores/authStore')
   const authStore = useAuthStore()
 
   // Ждем инициализации authStore

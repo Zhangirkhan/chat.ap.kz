@@ -10,14 +10,13 @@
         <p v-if="isFromClient" class="text-xs text-gray-400 dark:text-gray-500">{{ getFileExtension(message.file_name) }}</p>
         <p v-else class="text-xs text-white opacity-50">{{ getFileExtension(message.file_name) }}</p>
       </div>
-      <a
-        :href="message.file_path"
-        :download="message.file_name"
+      <button
+        @click="downloadFile"
         :class="downloadButtonClasses"
         title="Скачать документ"
       >
         <i class="pi pi-download text-sm"></i>
-      </a>
+      </button>
     </div>
     <p v-if="message.message" :class="captionClasses">{{ message.message }}</p>
   </div>
@@ -92,4 +91,24 @@ const captionClasses = computed(() => {
     return 'text-xs text-white opacity-90 mt-1 whitespace-pre-wrap'
   }
 })
+
+// Функция для принудительного скачивания файла
+const downloadFile = async () => {
+  try {
+    const response = await fetch(props.message.file_path)
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = props.message.file_name || 'document'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('Ошибка скачивания файла:', error)
+    // Fallback: открыть в новой вкладке
+    window.open(props.message.file_path, '_blank')
+  }
+}
 </script>

@@ -44,10 +44,9 @@ export function useOptimizedSSE(config: SSEConfig) {
         disconnect()
       }
 
-      const url = `${config.baseUrl}/api/chat-stream/global?token=${encodeURIComponent(config.token)}`
-      eventSource.value = new EventSource(url, {
-        withCredentials: true
-      })
+      // Глобальный SSE поток списка чатов (серверный маршрут: /api/chats/stream)
+      const url = `${config.baseUrl}/api/chats/stream`
+      eventSource.value = new EventSource(url)
 
       // Обработчики событий
       eventSource.value.onopen = () => {
@@ -102,6 +101,12 @@ export function useOptimizedSSE(config: SSEConfig) {
       eventSource.value.addEventListener('unread_update', (event) => {
         const data = JSON.parse(event.data)
         handleUnreadUpdate(data)
+      })
+
+      // Новый чат создан
+      eventSource.value.addEventListener('chat_created', (event) => {
+        const data = JSON.parse(event.data)
+        handleChatCreated(data)
       })
 
     } catch (err) {
@@ -165,6 +170,13 @@ export function useOptimizedSSE(config: SSEConfig) {
 
   const handleUnreadUpdate = (data: unknown) => {
     const subscribers = subscriptions.value.get('unread_update')
+    if (subscribers) {
+      subscribers.forEach(callback => callback(data))
+    }
+  }
+
+  const handleChatCreated = (data: unknown) => {
+    const subscribers = subscriptions.value.get('chat_created')
     if (subscribers) {
       subscribers.forEach(callback => callback(data))
     }

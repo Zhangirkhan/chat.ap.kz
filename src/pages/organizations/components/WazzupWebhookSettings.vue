@@ -20,7 +20,7 @@
     </div>
 
     <!-- Кнопки действий -->
-    <div v-if="form.wazzup24_api_key && form.wazzup24_channel_id" class="flex items-center gap-2 mt-4">
+    <div class="flex items-center gap-2 mt-4">
       <button
         type="button"
         @click="$emit('setupWebhooks')"
@@ -32,11 +32,29 @@
         {{ settingUpWebhooks ? 'Настраиваем...' : 'Подключить webhook' }}
       </button>
 
+      <button
+        type="button"
+        @click="handleCheckWebhook"
+        :disabled="checkingWebhook"
+        class="px-4 py-2 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white rounded-lg transition-colors duration-200 flex items-center gap-2"
+      >
+        <i v-if="checkingWebhook" class="pi pi-spin pi-spinner"></i>
+        <i v-else class="pi pi-check"></i>
+        {{ checkingWebhook ? 'Проверяем...' : 'Проверить webhook' }}
+      </button>
+
       <span v-if="webhookSetupResult" :class="[
         'text-sm ml-2',
         webhookSetupResult.success ? 'text-green-600' : 'text-red-600'
       ]">
         {{ webhookSetupResult.message }}
+      </span>
+
+      <span v-if="checkResultMessage" :class="[
+        'text-sm ml-2',
+        checkResultSuccess ? 'text-green-600' : 'text-red-600'
+      ]">
+        {{ checkResultMessage }}
       </span>
     </div>
   </div>
@@ -44,6 +62,8 @@
 
 <script setup lang="ts">
 import type { OrganizationFormData } from '@/shared/composables/useOrganizationForm'
+import { ref } from 'vue'
+import { apiClient } from '@/shared/api/client'
 
 interface Props {
   form: OrganizationFormData
@@ -56,4 +76,38 @@ defineProps<Props>()
 const emit = defineEmits<{
   setupWebhooks: []
 }>()
+
+const checkingWebhook = ref(false)
+const checkResultMessage = ref('')
+const checkResultSuccess = ref(false)
+
+const handleCheckWebhook = async () => {
+  if (checkingWebhook.value) return
+  checkingWebhook.value = true
+  checkResultMessage.value = ''
+  checkResultSuccess.value = false
+
+  try {
+    const response = await apiClient.get<{ ok: boolean; message?: string }>('/wazzup24/connection')
+    const ok = (response && typeof response === 'object' && 'success' in response) ? (response as any).success : (response as any)?.data?.ok
+    const message = (response as any)?.message || (response as any)?.data?.message
+
+    if (ok) {
+      checkResultSuccess.value = true
+      checkResultMessage.value = message || 'Подключение активно'
+    } else {
+      checkResultSuccess.value = false
+      checkResultMessage.value = message || 'Проверка неуспешна'
+    }
+  } catch (e: unknown) {
+    let msg = 'Ошибка проверки подключения'
+    if (e && typeof e === 'object' && 'message' in e && typeof (e as any).message === 'string') {
+      msg = (e as any).message
+    }
+    checkResultSuccess.value = false
+    checkResultMessage.value = msg
+  } finally {
+    checkingWebhook.value = false
+  }
+}
 </script>

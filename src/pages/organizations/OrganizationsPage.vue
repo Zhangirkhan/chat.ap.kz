@@ -244,10 +244,12 @@
     <!-- Диалог подтверждения удаления -->
     <ConfirmDialog
       v-if="showDeleteDialog"
+      :key="`confirm-${selectedOrganization?.id ?? 'new'}`"
       :title="'Удаление организации'"
       :message="`Вы уверены, что хотите удалить организацию '${selectedOrganization?.name}'?`"
-      @confirm="deleteOrganization"
-      @cancel="showDeleteDialog = false"
+      @confirm="onDeleteConfirm"
+      @cancel="onDeleteCancel"
+      @hide="onDeleteHide"
     />
 
   </AdminLayout>
@@ -323,11 +325,23 @@ const editOrganization = (organization: Organization) => {
 }
 
 const confirmDelete = (organization: Organization) => {
+  console.log('[Organizations] confirmDelete clicked', { organization })
   selectedOrganization.value = organization
   showDeleteDialog.value = true
+
+  // Fallback: если по какой-то причине модалка не отобразилась, используем native confirm
+  setTimeout(() => {
+    if (showDeleteDialog.value) return
+    const ok = window.confirm(`Удалить организацию "${organization.name}"? Это действие нельзя отменить.`)
+    if (ok) {
+      console.log('[Organizations] native confirm accepted, proceed delete')
+      deleteOrganization()
+    }
+  }, 300)
 }
 
 const closeDialog = () => {
+  console.log('[Organizations] closeDialog')
   showAddDialog.value = false
   showEditDialog.value = false
   showViewDialog.value = false
@@ -400,12 +414,14 @@ const deleteOrganization = async () => {
   if (!selectedOrganization.value) return
 
   try {
+    console.log('[Organizations] deleteOrganization start', { id: selectedOrganization.value.id })
     loading.value = true
 
     await organizationApi.deleteOrganization(selectedOrganization.value.id)
 
     const index = organizations.value.findIndex(org => org.id === selectedOrganization.value?.id)
     if (index !== -1) {
+      console.log('[Organizations] deleteOrganization removed from list', { index })
       organizations.value.splice(index, 1)
     }
 
@@ -421,6 +437,7 @@ const deleteOrganization = async () => {
 
     closeDialog()
   } catch (err) {
+    console.error('[Organizations] deleteOrganization error', err)
     error.value = err instanceof Error ? err.message : 'Ошибка удаления организации'
 
     // Показываем уведомление об ошибке
@@ -433,8 +450,25 @@ const deleteOrganization = async () => {
       group: 'main'
     })
   } finally {
+    console.log('[Organizations] deleteOrganization finally')
     loading.value = false
   }
+}
+
+// Confirm dialog event handlers with logs
+const onDeleteConfirm = () => {
+  console.log('[Organizations] ConfirmDialog confirm')
+  deleteOrganization()
+}
+
+const onDeleteCancel = () => {
+  console.log('[Organizations] ConfirmDialog cancel')
+  showDeleteDialog.value = false
+}
+
+const onDeleteHide = () => {
+  console.log('[Organizations] ConfirmDialog hide')
+  showDeleteDialog.value = false
 }
 
 // Удалено тестирование webhook из списка организаций по требованию

@@ -221,7 +221,12 @@ const loadDepartments = async () => {
 
     // Проверяем формат ответа
     if (response.data && Array.isArray(response.data)) {
-      departments.value = response.data
+      // нормализуем статус и organization_id
+      departments.value = response.data.map((d: any) => ({
+        ...d,
+        status: d.status ?? (d.is_active ? 'active' : 'inactive'),
+        organization_id: d.organization_id ?? d.organization?.id
+      }))
     } else if (Array.isArray(response)) {
       departments.value = response
     } else {
@@ -264,26 +269,44 @@ const handleSave = async (departmentData: CreateDepartmentData | UpdateDepartmen
 
     if (showEditDialog.value && selectedDepartment.value) {
       // Редактирование существующего отдела
-      const response = await departmentApi.updateDepartment(selectedDepartment.value.id, departmentData as UpdateDepartmentData)
+      const payload: any = { ...departmentData }
+      if ((departmentData as any).status !== undefined) {
+        payload.is_active = (departmentData as any).status === 'active'
+        delete payload.status
+      }
+      const response = await departmentApi.updateDepartment(selectedDepartment.value.id, payload as UpdateDepartmentData)
 
 
       const index = departments.value.findIndex(dept => dept.id === selectedDepartment.value?.id)
       if (index !== -1) {
         // Используем данные из response.data
         if (response.data) {
-          departments.value[index] = response.data
+          departments.value[index] = {
+            ...response.data,
+            status: response.data.status ?? (response.data.is_active ? 'active' : 'inactive'),
+            organization_id: response.data.organization_id ?? response.data.organization?.id
+          }
         } else {
           throw new Error('Неожиданный формат ответа от сервера')
         }
       }
     } else {
       // Добавление нового отдела
-      const response = await departmentApi.createDepartment(departmentData as CreateDepartmentData)
+      const payload: any = { ...departmentData }
+      if ((departmentData as any).status !== undefined) {
+        payload.is_active = (departmentData as any).status === 'active'
+        delete payload.status
+      }
+      const response = await departmentApi.createDepartment(payload as CreateDepartmentData)
 
 
       // Используем данные из response.data
       if (response.data) {
-        departments.value.push(response.data)
+        departments.value.push({
+          ...response.data,
+          status: response.data.status ?? (response.data.is_active ? 'active' : 'inactive'),
+          organization_id: response.data.organization_id ?? response.data.organization?.id
+        })
       } else {
         throw new Error('Неожиданный формат ответа от сервера')
       }

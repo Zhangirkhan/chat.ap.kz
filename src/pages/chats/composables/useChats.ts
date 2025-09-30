@@ -15,10 +15,13 @@ export function useChats() {
   const searchQuery = ref('')
 
   const filteredChats = computed(() => {
-    if (!searchQuery.value) return chats.value
+    // Сначала исключаем закрытые чаты
+    const activeChats = chats.value.filter(chat => chat.status !== 'closed')
+    
+    if (!searchQuery.value) return activeChats
 
     const query = searchQuery.value.toLowerCase()
-    const filtered = chats.value.filter(chat =>
+    const filtered = activeChats.filter(chat =>
       chat.client_name.toLowerCase().includes(query) ||
       chat.client_phone?.includes(query) ||
       chat.client_email?.toLowerCase().includes(query) ||
@@ -39,12 +42,17 @@ export function useChats() {
         per_page: 50
       })
 
+      console.log('API response:', response)
+
       if (response.data && Array.isArray(response.data)) {
         chats.value = response.data
+        console.log('Loaded chats from response.data:', response.data)
       } else if (Array.isArray(response)) {
         chats.value = response
+        console.log('Loaded chats from response:', response)
       } else {
         chats.value = []
+        console.log('No chats loaded, response:', response)
       }
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Ошибка загрузки чатов'
@@ -61,7 +69,7 @@ export function useChats() {
 
       const response = await chatApi.searchChats({
         query: searchQuery.value,
-        status: undefined
+        status: 'active' // Ищем только активные чаты
       })
 
       if (response.data && Array.isArray(response.data)) {
@@ -159,6 +167,35 @@ export function useChats() {
     }
   }
 
+  const deleteChat = async (chatId: number) => {
+    try {
+      await chatApi.deleteChat(chatId)
+      
+      // Удаляем чат из локального списка
+      const chatIndex = chats.value.findIndex(c => c.id === chatId)
+      if (chatIndex >= 0) {
+        chats.value.splice(chatIndex, 1)
+      }
+
+      toast.add({
+        severity: 'success',
+        summary: 'Успешно',
+        detail: 'Чат удален',
+        life: 3000
+      })
+
+      return true
+    } catch (err) {
+      toast.add({
+        severity: 'error',
+        summary: 'Ошибка',
+        detail: err instanceof Error ? err.message : 'Ошибка удаления чата',
+        life: 5000
+      })
+      return false
+    }
+  }
+
   return {
     chats,
     loading,
@@ -168,6 +205,7 @@ export function useChats() {
     loadChats,
     searchChats,
     createChat,
-    updateChatUnreadCount
+    updateChatUnreadCount,
+    deleteChat
   }
 }

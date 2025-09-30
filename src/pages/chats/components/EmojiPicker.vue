@@ -1,14 +1,16 @@
 <template>
-  <div class="relative">
+  <div class="relative emoji-picker-container">
     <!-- Кнопка эмодзи -->
     <button
-      @click="togglePicker"
+      @click.stop="togglePicker"
+      type="button"
       :class="[
         'h-10 w-10 flex items-center justify-center rounded-lg transition-colors duration-200',
         isOpen
           ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/20 dark:text-yellow-400'
           : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
       ]"
+      title="Эмодзи"
     >
       <i class="pi pi-face-smile text-sm md:text-base"></i>
     </button>
@@ -16,7 +18,10 @@
     <!-- Панель эмодзи -->
     <div
       v-if="isOpen"
-      class="absolute bottom-full right-0 mb-2 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 w-80 max-h-96 overflow-hidden z-50"
+      v-show="isOpen"
+      @click.stop
+      class="fixed bottom-20 right-4 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-4 w-80 max-h-96 overflow-hidden z-[99999]"
+      style="max-width: calc(100vw - 2rem);"
     >
       <!-- Заголовок -->
       <div class="flex items-center justify-between mb-3">
@@ -417,7 +422,8 @@ const emojiData = {
   ]
 }
 
-const togglePicker = () => {
+const togglePicker = (event: Event) => {
+  event.stopPropagation()
   isOpen.value = !isOpen.value
 }
 
@@ -454,7 +460,9 @@ const filteredEmojis = computed(() => {
 // Закрываем пикер при клике вне его
 const handleClickOutside = (event: Event) => {
   const target = event.target as HTMLElement
-  if (!target.closest('.relative')) {
+  const emojiPicker = target.closest('.emoji-picker-container')
+  const emojiButton = target.closest('[title="Эмодзи"]')
+  if (!emojiPicker && !emojiButton) {
     isOpen.value = false
   }
 }
@@ -469,7 +477,10 @@ onMounted(() => {
     }
   }
 
-  document.addEventListener('click', handleClickOutside)
+  // Добавляем обработчик с небольшой задержкой, чтобы избежать немедленного закрытия
+  setTimeout(() => {
+    document.addEventListener('click', handleClickOutside)
+  }, 100)
 })
 
 onUnmounted(() => {

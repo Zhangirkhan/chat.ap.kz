@@ -31,7 +31,7 @@
             />
           </div>
 
-          <div v-if="form.slug">
+          <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Slug
             </label>
@@ -155,7 +155,7 @@
                   ID канала WhatsApp в системе Wazzup24
                 </p>
 
-                <!-- Список доступных каналов -->
+                <!-- Список доступных каналов (без textarea списка) -->
                 <div v-if="availableChannels.length > 0" class="mt-2">
                   <div class="space-y-1">
                     <button
@@ -169,25 +169,17 @@
                       <span class="text-gray-600 dark:text-gray-300 ml-2">{{ channel.name }}</span>
                       <span v-if="channel.phone" class="text-gray-500 dark:text-gray-400 ml-1">({{ channel.phone }})</span>
                       <span
-                        v-if="channel.status || channel.state"
+                        v-if="channel.status"
                         class="ml-2 text-[10px] px-1.5 py-0.5 rounded uppercase tracking-wide"
                         :class="[
-                          (channel.status || channel.state) === 'active' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' :
-                          (channel.status || channel.state) === 'qridle' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300' :
+                          channel.status === 'active' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' :
+                          channel.status === 'qridle' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300' :
                           'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
                         ]"
                       >
-                        {{ (channel.status || channel.state) }}
+                        {{ channel.status }}
                       </span>
                     </button>
-                  </div>
-                  <!-- Текстовый список ID (без заголовка) -->
-                  <div class="mt-2">
-                    <textarea
-                      readonly
-                      class="w-full text-xs font-mono px-2 py-2 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200"
-                      rows="3"
-                    >{{ availableChannels.map(c => c.channelId).join('\n') }}</textarea>
                   </div>
                 </div>
                 <p v-else-if="channelsMessage" class="text-xs mt-2" :class="channelsError ? 'text-red-600' : 'text-gray-700 dark:text-gray-300'">{{ channelsMessage }}</p>
@@ -232,11 +224,29 @@
                   {{ settingUpWebhooks ? 'Настраиваем...' : 'Подключить webhook' }}
                 </button>
 
+                <button
+                  type="button"
+                  @click="checkWazzupWebhookStatus"
+                  :disabled="checkingWebhook"
+                  class="px-4 py-2 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white rounded-lg transition-colors duration-200 flex items-center gap-2"
+                >
+                  <i v-if="checkingWebhook" class="pi pi-spin pi-spinner"></i>
+                  <i v-else class="pi pi-check"></i>
+                  {{ checkingWebhook ? 'Проверяем...' : 'Проверить webhook' }}
+                </button>
+
                 <span v-if="webhookSetupResult" :class="[
                   'text-sm ml-2',
                   webhookSetupResult.success ? 'text-green-600' : 'text-red-600'
                 ]">
                   {{ webhookSetupResult.message }}
+                </span>
+
+                <span v-if="checkResultMessage" :class="[
+                  'text-sm ml-2',
+                  checkResultSuccess ? 'text-green-600' : 'text-red-600'
+                ]">
+                  {{ checkResultMessage }}
                 </span>
               </div>
             </div>
@@ -271,6 +281,7 @@
 <script setup lang="ts">
 import { ref, reactive, watch, onMounted } from 'vue'
 import { organizationApi } from '@/entities/organization/api/organizationApi'
+import { API_CONFIG } from '@/shared/config/api'
 
 interface Organization {
   id?: number
@@ -306,6 +317,9 @@ const channelsMessage = ref<string>('')
 const channelsError = ref<boolean>(false)
 const settingUpWebhooks = ref(false)
 const webhookSetupResult = ref<{ success: boolean; message: string } | null>(null)
+const checkingWebhook = ref(false)
+const checkResultMessage = ref('')
+const checkResultSuccess = ref(false)
 
 interface WazzupChannel {
   channelId: string
@@ -327,7 +341,6 @@ const form = reactive({
   
   phone: '',
   webhook_url: '',
-  webhook_token: '',
   wazzup24_enabled: false,
   wazzup24_api_key: '',
   wazzup24_channel_id: '',
@@ -368,7 +381,6 @@ const initForm = () => {
       
       phone: props.organization.phone || '',
       webhook_url: props.organization.webhook_url || '',
-      webhook_token: props.organization.webhook_token || '',
       wazzup24_enabled: props.organization.wazzup24_enabled || false,
       wazzup24_api_key: props.organization.wazzup24_api_key || '',
       wazzup24_channel_id: props.organization.wazzup24_channel_id || '',
@@ -379,6 +391,10 @@ const initForm = () => {
     if (form.phone) {
       formatPhoneFromString(form.phone)
     }
+    if (form.slug && !form.webhook_url) {
+      const base = API_CONFIG.BACKEND_URL || 'https://back-erp.ap.kz'
+      form.webhook_url = `${base}/api/webhooks/organization/${encodeURIComponent(form.slug)}`
+    }
   } else {
     Object.assign(form, {
       name: '',
@@ -387,7 +403,6 @@ const initForm = () => {
       
       phone: '',
       webhook_url: '',
-      webhook_token: '',
       wazzup24_enabled: false,
       wazzup24_api_key: '',
       wazzup24_channel_id: '',
@@ -510,7 +525,7 @@ const loadWazzupChannels = async () => {
 }
 
 // Выбор канала из списка
-const selectChannel = (channel: { channelId: string; name: string; phone?: string; status?: string }) => {
+const selectChannel = (channel: { channelId: string; name: string; phone?: string; status?: string; state?: string }) => {
   form.wazzup24_channel_id = channel.channelId
 }
 
@@ -528,8 +543,15 @@ const setupWazzupWebhooks = async () => {
   webhookSetupResult.value = null
 
   try {
-
-    const response = await organizationApi.setupWazzupWebhooks(props.organization.id)
+    const response = await organizationApi.setupWazzupWebhooks(props.organization.id, {
+      webhook_url: form.webhook_url || undefined,
+      subscriptions: {
+        messagesAndStatuses: true,
+        contactsAndDealsCreation: false,
+        channelsUpdates: false,
+        templateStatus: false
+      }
+    })
 
     // Поддержка обоих форматов ответа: { success, data, error } ИЛИ { data: { success, error } }
     const raw: any = response as any
@@ -577,6 +599,45 @@ const setupWazzupWebhooks = async () => {
   }
 }
 
+// Проверка текущего статуса webhook в Wazzup24
+const checkWazzupWebhookStatus = async () => {
+  if (!props.organization?.id) {
+    checkResultSuccess.value = false
+    checkResultMessage.value = 'ID организации не найден'
+    return
+  }
+
+  checkingWebhook.value = true
+  checkResultMessage.value = ''
+  checkResultSuccess.value = false
+
+  try {
+    const response = await organizationApi.getWazzupWebhooksStatus(props.organization.id)
+    const raw: any = response as any
+    const success = (raw && typeof raw === 'object' && 'success' in raw) ? raw.success : raw?.data?.success
+    const data = (raw && typeof raw === 'object' && 'data' in raw) ? raw.data : raw?.data?.data
+
+    if (success) {
+      checkResultSuccess.value = true
+      const uri = data?.webhooksUri || data?.webhookUri || form.webhook_url || ''
+      checkResultMessage.value = uri ? `Webhook активен: ${uri}` : 'Webhook активен'
+    } else {
+      checkResultSuccess.value = false
+      const errMsg = (raw && typeof raw === 'object' && 'error' in raw) ? raw.error : (raw?.data?.error || raw?.message)
+      checkResultMessage.value = errMsg || 'Не удалось получить статус webhook'
+    }
+  } catch (e: unknown) {
+    let msg = 'Ошибка проверки webhook'
+    if (e && typeof e === 'object' && 'message' in e && typeof (e as any).message === 'string') {
+      msg = (e as any).message
+    }
+    checkResultSuccess.value = false
+    checkResultMessage.value = msg
+  } finally {
+    checkingWebhook.value = false
+  }
+}
+
 // Отправка формы
 const handleSubmit = async () => {
   // Валидация формы
@@ -605,5 +666,52 @@ watch(() => props.organization, initForm, { immediate: true })
 
 onMounted(() => {
   initForm()
+})
+
+// Автогенерация webhook_url из slug, если пользователь не задал вручную
+watch(() => form.slug, (newSlug) => {
+  if (!newSlug) return
+  if (!form.webhook_url) {
+    const base = (API_CONFIG.BACKEND_URL || 'https://back-erp.ap.kz').replace(/\/$/, '')
+    const candidate = `${base}/api/webhooks/organization/${encodeURIComponent(newSlug)}`
+    form.webhook_url = candidate.substring(0, 200)
+  }
+})
+
+// Транслитерация и slugify для кириллицы
+const translitMap: Record<string, string> = {
+  'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'e','ж':'zh','з':'z','и':'i','й':'y','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'h','ц':'ts','ч':'ch','ш':'sh','щ':'sch','ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya',
+  'А':'A','Б':'B','В':'V','Г':'G','Д':'D','Е':'E','Ё':'E','Ж':'Zh','З':'Z','И':'I','Й':'Y','К':'K','Л':'L','М':'M','Н':'N','О':'O','П':'P','Р':'R','С':'S','Т':'T','У':'U','Ф':'F','Х':'H','Ц':'Ts','Ч':'Ch','Ш':'Sh','Щ':'Sch','Ъ':'','Ы':'Y','Ь':'','Э':'E','Ю':'Yu','Я':'Ya'
+}
+
+function slugifyCyrillic(input: string): string {
+  if (!input) return ''
+  const transliterated = input.split('').map(ch => translitMap[ch] ?? ch).join('')
+  return transliterated
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .substring(0, 80)
+}
+
+// Автогенерация slug при изменении name (только если пользователь не менял slug вручную)
+let userEditedSlug = false
+watch(() => form.slug, (val, oldVal) => {
+  if (oldVal !== undefined && val !== slugifyCyrillic(form.name)) {
+    userEditedSlug = true
+  }
+})
+
+watch(() => form.name, (newName) => {
+  if (!userEditedSlug || !form.slug) {
+    form.slug = slugifyCyrillic(newName)
+  }
+})
+
+// Сброс флага при загрузке другой организации
+watch(() => props.organization?.id, () => {
+  userEditedSlug = false
 })
 </script>

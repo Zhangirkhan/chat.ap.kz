@@ -16,7 +16,7 @@
     <!-- Выпадающее меню -->
     <div
       v-if="isOpen"
-      class="absolute bottom-full left-0 mb-2 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 py-2 min-w-48 z-50"
+      class="absolute bottom-full left-0 mb-2 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 py-2 min-w-48 z-[9998]"
     >
       <!-- Фото -->
       <button
@@ -28,11 +28,12 @@
         </div>
         <div>
           <div class="text-sm font-medium text-gray-900 dark:text-white">Фото</div>
-          <div class="text-xs text-gray-500 dark:text-gray-400">JPG, PNG, GIF • до 50 МБ</div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">JPG, PNG, GIF • до 16 МБ</div>
         </div>
       </button>
 
-      <!-- Видео -->
+      <!-- Видео - СКРЫТО (Wazzup не поддерживает большие видео) -->
+      <!--
       <button
         @click="selectFileType('video')"
         class="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 flex items-center gap-3"
@@ -42,10 +43,10 @@
         </div>
         <div>
           <div class="text-sm font-medium text-gray-900 dark:text-white">Видео</div>
-          <div class="text-xs text-gray-500 dark:text-gray-400">MP4, MOV, AVI, MKV • до 50 МБ</div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">MP4 • до 10 МБ для WhatsApp</div>
         </div>
       </button>
-
+      -->
 
 
       <!-- Документы -->
@@ -57,8 +58,8 @@
           <i class="pi pi-file text-blue-600 dark:text-blue-400"></i>
         </div>
         <div>
-          <div class="text-sm font-medium text-gray-900 dark:text-white">Документ</div>
-          <div class="text-xs text-gray-500 dark:text-gray-400">PDF, DOC, PPT, XLS, JSON, ZIP • до 50 МБ</div>
+          <div class="text-sm font-medium text-gray-900 dark:text-white">Файл / Документ</div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">PDF, DOC, MP4, XLS, ZIP и др. • до 16 МБ</div>
         </div>
       </button>
     </div>
@@ -86,7 +87,7 @@
     <input
       ref="documentInput"
       type="file"
-      accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.csv,.json,.xml,.zip,.rar,.7z"
+      accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.csv,.json,.xml,.zip,.rar,.7z,.mp4,.mov,.avi,.mkv"
       multiple
       class="hidden"
       @change="handleFileSelect"
@@ -117,10 +118,10 @@ interface FileWithPreview extends File {
 
 // Ограничения размера файлов
 const FILE_SIZE_LIMITS = {
-  image: 50 * 1024 * 1024,    // 50MB для изображений
-  video: 50 * 1024 * 1024,    // 50MB для видео
-  document: 50 * 1024 * 1024, // 50MB для документов
-  default: 50 * 1024 * 1024    // 50MB по умолчанию
+  image: 16 * 1024 * 1024,    // 16MB для изображений (лимит WhatsApp)
+  video: 10 * 1024 * 1024,    // 10MB для видео (безопасный лимит для Wazzup)
+  document: 16 * 1024 * 1024, // 16MB для документов (лимит WhatsApp)
+  default: 16 * 1024 * 1024    // 16MB по умолчанию
 }
 
 const emit = defineEmits<{

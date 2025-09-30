@@ -16,10 +16,10 @@
             <i class="pi pi-arrow-left text-lg"></i>
           </button>
           <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
-            <span class="text-white font-semibold text-sm">{{ selectedChat.client_name?.charAt(0) || '?' }}</span>
+            <span class="text-white font-semibold text-sm">{{ getClientInitial(selectedChat) }}</span>
           </div>
           <div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ selectedChat.client_name || 'Неизвестный' }}</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ getClientDisplayName(selectedChat) }}</h3>
             <div class="flex items-center gap-2">
               <span :class="[
                 'text-sm',
@@ -35,9 +35,20 @@
         </div>
 
         <div class="flex items-center gap-1 md:gap-2">
+          <!-- Инфобокс о лимитах Wazzup -->
+          <button
+            @click="showWazzupInfo = !showWazzupInfo"
+            class="p-2 text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+            title="Показать ограничения Wazzup"
+          >
+            <i class="pi pi-info-circle text-sm md:text-base"></i>
+          </button>
+          <!-- Временно скрыта кнопка телефона -->
+          <!--
           <button class="p-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
             <i class="pi pi-phone text-sm md:text-base"></i>
           </button>
+          -->
           <button
             @click="handleCloseChat"
             class="hidden sm:block p-2 text-red-500 hover:text-red-700 dark:hover:text-red-300 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
@@ -48,6 +59,20 @@
           <button class="p-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
             <i class="pi pi-ellipsis-v text-sm md:text-base"></i>
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Панель с ограничениями Wazzup -->
+    <div v-if="showWazzupInfo" class="mx-4 my-3 rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 p-4 text-sm text-amber-900 dark:text-amber-200">
+      <div class="flex items-start gap-2">
+        <i class="pi pi-shield text-amber-600 dark:text-amber-300 mt-0.5"></i>
+        <div class="space-y-2">
+          <p class="font-medium">Вижу, что сработал наш спам‑фильтр.</p>
+          <p>👉 Он сделан специально, чтобы защитить ваш номер от нежелательной блокировки аккаунта в случае ошибочной рассылки или неисправности автоматики.</p>
+          <p>👉 Спам‑фильтр работает так: при превышении лимита (10 одинаковых сообщений подряд одному контакту за 100 секунд или 100 одинаковых сообщений подряд любым контактам за 10 секунд) канал попадает в спам‑лист и попытки отправки возвращают ошибку в течение 24 часов.</p>
+          <p>👉 Проверьте, всё ли штатно работает, не сломан ли автоматический процесс, который отправляет одинаковые сообщения.</p>
+          <p>👉 Если всё хорошо, можно запросить запуск канала повторно.</p>
         </div>
       </div>
     </div>
@@ -67,11 +92,7 @@
           <p class="text-sm">Начните диалог с клиентом</p>
         </div>
       </div>
-
-      <!-- Отладка -->
-      <div v-if="messages.length > 0" class="text-xs text-gray-400 text-center mb-4">
-        Сообщений: {{ messages.length }}
-      </div>
+      
       <div
         v-for="message in messages"
         :key="message.id"
@@ -86,7 +107,7 @@
         <div v-if="message.is_from_client" class="flex items-start gap-3 max-w-[70%]">
           <!-- Аватар клиента -->
           <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0 mt-1">
-            <span class="text-white font-semibold text-xs">{{ getClientInitial(message) }}</span>
+            <span class="text-white font-semibold text-xs">{{ getMessageClientInitial(message) }}</span>
           </div>
 
           <div class="flex flex-col">
@@ -97,7 +118,24 @@
             </div>
 
             <!-- Сообщение клиента -->
-            <div class="bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-3 rounded-2xl rounded-bl-md shadow-sm border dark:border-gray-600">
+            <div class="bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-3 rounded-2xl rounded-bl-md shadow-sm border dark:border-gray-600 group relative">
+              <!-- Кнопка ответа -->
+              <button
+                @click="emit('replyTo', message)"
+                class="absolute -top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-500 hover:bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                title="Ответить"
+              >
+                <i class="pi pi-reply text-xs"></i>
+              </button>
+              
+              <!-- Цитата -->
+              <MessageQuote 
+                v-if="message.metadata?.reply_to_message_id"
+                :message="message"
+                :is-from-client="true"
+                @scroll-to="scrollToMessageId"
+              />
+              
               <!-- Текстовое сообщение -->
               <div v-if="message.type === 'text'" class="whitespace-pre-wrap break-words">{{ message.message }}</div>
 
@@ -171,40 +209,72 @@
                     <p v-if="message.file_size" class="text-xs text-gray-500 dark:text-gray-400">{{ formatFileSize(message.file_size) }}</p>
                     <p class="text-xs text-gray-400 dark:text-gray-500">{{ getFileExtension(message.file_name) }}</p>
                   </div>
-                  <a
-                    :href="message.file_path"
-                    :download="message.file_name"
+                  <button
+                    @click="handleDownloadFile(message)"
                     class="w-10 h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center justify-center transition-colors"
                     title="Скачать документ"
                   >
                     <i class="pi pi-download text-sm"></i>
-                  </a>
+                  </button>
                 </div>
                 <p v-if="message.message" class="text-xs text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap">{{ message.message }}</p>
               </div>
 
-              <!-- Аудио (только отображение) -->
-              <div v-else-if="message.type === 'file' && message.file_name && /\.(mp3|wav|ogg|m4a)$/i.test(message.file_name) && message.file_path" class="mb-2">
-                <div class="flex items-center gap-3 p-2 bg-gray-50 dark:bg-gray-600 rounded-lg mb-2">
-                  <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+              <!-- Аудио от клиента -->
+              <div v-else-if="message.type === 'audio'" class="mb-2">
+                <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-600 rounded-lg">
+                  <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center flex-shrink-0">
                     <i class="pi pi-volume-up text-green-600 dark:text-green-400"></i>
                   </div>
                   <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium">{{ message.file_name || 'Аудио' }}</p>
-                    <p v-if="message.file_size" class="text-xs text-gray-500">{{ formatFileSize(message.file_size) }}</p>
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">🎵 Голосовое сообщение</p>
+                    <p v-if="message.file_size" class="text-xs text-gray-500 dark:text-gray-400">{{ formatFileSize(message.file_size) }}</p>
+                    <audio controls class="w-full mt-2">
+                      <source :src="message.file_path || message.metadata?.audio_url || message.metadata?.file_path" />
+                      Ваш браузер не поддерживает аудио.
+                    </audio>
                   </div>
+                  <button
+                    @click="handleDownloadFile(message)"
+                    class="w-10 h-10 bg-green-500 hover:bg-green-600 text-white rounded-lg flex items-center justify-center transition-colors flex-shrink-0"
+                    title="Скачать аудио"
+                  >
+                    <i class="pi pi-download text-sm"></i>
+                  </button>
                 </div>
-                <audio controls class="w-full">
-                  <source :src="message.file_path" />
-                  Ваш браузер не поддерживает аудио.
-                </audio>
-                <p v-if="message.message" class="text-xs text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap">{{ message.message }}</p>
+                <p v-if="message.message && message.message !== 'Аудио сообщение'" class="text-xs text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap">{{ message.message }}</p>
+              </div>
+
+              <!-- Аудио файлы (старый формат type=file) -->
+              <div v-else-if="message.type === 'file' && message.file_name && /\.(mp3|wav|ogg|m4a)$/i.test(message.file_name) && message.file_path" class="mb-2">
+                <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-600 rounded-lg">
+                  <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <i class="pi pi-volume-up text-green-600 dark:text-green-400"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">🎵 Голосовое сообщение</p>
+                    <p v-if="message.file_size" class="text-xs text-gray-500 dark:text-gray-400">{{ formatFileSize(message.file_size) }}</p>
+                    <audio controls class="w-full mt-2">
+                      <source :src="message.file_path" />
+                      Ваш браузер не поддерживает аудио.
+                    </audio>
+                  </div>
+                  <button
+                    @click="handleDownloadFile(message)"
+                    class="w-10 h-10 bg-green-500 hover:bg-green-600 text-white rounded-lg flex items-center justify-center transition-colors flex-shrink-0"
+                    title="Скачать аудио"
+                  >
+                    <i class="pi pi-download text-sm"></i>
+                  </button>
+                </div>
+                <p v-if="message.message && message.message !== 'Аудио сообщение'" class="text-xs text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap">{{ message.message }}</p>
               </div>
 
               <!-- Неизвестный тип -->
               <div v-else class="text-sm text-gray-500">
                 {{ message.type === 'image' ? '📷 Изображение' :
                    message.type === 'video' ? '🎥 Видео' :
+                   message.type === 'audio' ? '🎵 Аудио' :
                    message.type === 'document' ? '📄 Документ' :
                    message.type === 'file' ? '📄 Файл' :
                    '📎 Вложение' }}
@@ -247,7 +317,24 @@
             </div>
 
             <!-- Сообщение сотрудника -->
-            <div class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-2xl rounded-br-md shadow-sm transition-colors">
+            <div class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-2xl rounded-br-md shadow-sm transition-colors group relative">
+              <!-- Кнопка ответа -->
+              <button
+                @click="emit('replyTo', message)"
+                class="absolute -top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/20 hover:bg-white/30 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                title="Ответить"
+              >
+                <i class="pi pi-reply text-xs"></i>
+              </button>
+              
+              <!-- Цитата -->
+              <MessageQuote 
+                v-if="message.metadata?.reply_to_message_id"
+                :message="message"
+                :is-from-client="false"
+                @scroll-to="scrollToMessageId"
+              />
+              
               <!-- Текстовое сообщение -->
               <div v-if="message.type === 'text'" class="whitespace-pre-wrap break-words">{{ message.message }}</div>
 
@@ -343,14 +430,13 @@
                     <p v-if="message.file_size" class="text-xs text-white opacity-75">{{ formatFileSize(message.file_size) }}</p>
                     <p class="text-xs text-white opacity-50">{{ getFileExtension(message.file_name) }}</p>
                   </div>
-                  <a
-                    :href="message.file_path"
-                    :download="message.file_name"
+                  <button
+                    @click="handleDownloadFile(message)"
                     class="w-10 h-10 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg flex items-center justify-center transition-colors"
                     title="Скачать документ"
                   >
                     <i class="pi pi-download text-sm"></i>
-                  </a>
+                  </button>
                 </div>
                 <p v-if="message.message" class="text-xs text-white opacity-90 mt-1 whitespace-pre-wrap">{{ message.message }}</p>
               </div>
@@ -364,57 +450,83 @@
                   <p class="text-sm font-medium text-white truncate">{{ message.file_name || 'Документ' }}</p>
                   <p v-if="message.file_size" class="text-xs text-white opacity-75">{{ formatFileSize(message.file_size) }}</p>
                 </div>
-                <a
-                  :href="message.file_path"
-                  :download="message.file_name"
+                <button
+                  @click="handleDownloadFile(message)"
                   class="w-8 h-8 bg-white bg-opacity-20 rounded-lg flex items-center justify-center text-white hover:bg-opacity-30 transition-colors"
                   title="Скачать файл"
                 >
                   <i class="pi pi-download text-sm"></i>
-                </a>
+                </button>
               </div>
 
               <!-- Аудио исходящее (только отображение) -->
               <div v-else-if="message.type === 'audio'" class="mb-2">
-                <div class="flex items-center gap-3 p-2 bg-blue-600 rounded-lg mb-2">
-                  <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                <div class="flex items-center gap-3 p-3 bg-blue-600 rounded-lg">
+                  <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center flex-shrink-0">
                     <i class="pi pi-volume-up text-white"></i>
                   </div>
                   <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-white">{{ message.file_name || 'Аудио' }}</p>
+                    <p class="text-sm font-medium text-white">🎵 Голосовое сообщение</p>
                     <p v-if="message.file_size" class="text-xs text-white opacity-75">{{ formatFileSize(message.file_size) }}</p>
+                    <audio controls class="w-full mt-2">
+                      <source :src="message.file_path || message.metadata?.audio_url || message.metadata?.file_path" />
+                      Ваш браузер не поддерживает аудио.
+                    </audio>
                   </div>
+                  <button
+                    @click="handleDownloadFile(message)"
+                    class="w-10 h-10 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg flex items-center justify-center transition-colors flex-shrink-0"
+                    title="Скачать аудио"
+                  >
+                    <i class="pi pi-download text-sm"></i>
+                  </button>
                 </div>
-                <audio controls class="w-full">
-                  <source :src="message.file_path" />
-                  Ваш браузер не поддерживает аудио.
-                </audio>
-                <p v-if="message.message" class="text-xs text-white opacity-90 mt-1 whitespace-pre-wrap">{{ message.message }}</p>
+                <p v-if="message.message && message.message !== 'Аудио сообщение'" class="text-xs text-white opacity-90 mt-1 whitespace-pre-wrap">{{ message.message }}</p>
               </div>
 
               <!-- Неизвестный тип -->
               <div v-else class="text-sm opacity-90">
                 {{ message.type === 'image' ? '📷 Изображение' :
                    message.type === 'video' ? '🎥 Видео' :
+                   message.type === 'audio' ? '🎵 Аудио' :
                    message.type === 'document' ? '📄 Документ' :
                    message.type === 'file' ? '📄 Файл' :
                    '📎 Вложение' }}
               </div>
             </div>
 
-            <!-- Статус прочтения -->
-            <div class="flex justify-end mt-1">
-              <i v-if="message.is_read" class="pi pi-check-double text-blue-400 text-xs"></i>
-              <i v-else class="pi pi-check text-gray-400 text-xs"></i>
-            </div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Поле ввода сообщения -->
-    <div v-if="selectedChat" class="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-      <div class="flex items-end gap-3">
+    <div v-if="selectedChat" class="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+      <!-- Превью ответа -->
+      <div v-if="replyToMessage" class="px-4 pt-3 pb-2 border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-900/20">
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <i class="pi pi-reply text-blue-500 text-xs"></i>
+              <span class="text-xs font-medium text-blue-600 dark:text-blue-400">
+                Ответ на {{ replyToMessage.is_from_client ? getClientName(replyToMessage) : getStaffName(replyToMessage) }}
+              </span>
+            </div>
+            <p class="text-sm text-gray-700 dark:text-gray-300 truncate">
+              {{ replyToMessage.message || getMessagePreview(replyToMessage) }}
+            </p>
+          </div>
+          <button
+            @click="emit('cancelReply')"
+            class="flex-shrink-0 w-6 h-6 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center"
+            title="Отменить ответ"
+          >
+            <i class="pi pi-times text-xs"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="p-4 flex items-end gap-3">
         <!-- Меню загрузки файлов -->
         <div class="flex-shrink-0">
           <FileUploadMenu
@@ -440,7 +552,7 @@
 
             <!-- Кнопка эмодзи -->
             <div class="flex-shrink-0 p-2">
-              <EmojiPicker @emoji-selected="$emit('emojiSelected', $event)" />
+              <EmojiPicker @emoji-selected="handleEmojiInsert" />
             </div>
           </div>
         </div>
@@ -459,19 +571,23 @@
       </div>
 
       <!-- Индикатор загрузки файла -->
-      <div v-if="uploadingFile" class="mt-3 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-        <i class="pi pi-spin pi-spinner"></i>
-        <span>Загрузка файла...</span>
+      <div v-if="uploadingFile" class="mt-3 flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+        <div class="relative w-5 h-5">
+          <div class="absolute inset-0 rounded-full border-2 border-blue-200 dark:border-blue-700"></div>
+          <div class="absolute inset-0 rounded-full border-2 border-transparent border-t-blue-500 animate-spin"></div>
+        </div>
+        <span class="text-sm font-medium text-blue-700 dark:text-blue-300">Загрузка файлов...</span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, watch } from 'vue'
+import { ref, nextTick, onMounted, watch, computed } from 'vue'
 import type { Chat, Message } from '@/shared/lib/types'
 import FileUploadMenu from './FileUploadMenu.vue'
 import EmojiPicker from './EmojiPicker.vue'
+import MessageQuote from './MessageQuote.vue'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { chatApi } from '@/entities/chat/api/chatApi'
@@ -482,6 +598,7 @@ interface Props {
   newMessage?: string
   sendingMessage?: boolean
   uploadingFile?: boolean
+  replyToMessage?: Message | null
 }
 
 const props = defineProps<Props>()
@@ -489,6 +606,7 @@ const props = defineProps<Props>()
 const messageText = ref('')
 const messageInput = ref<HTMLTextAreaElement | null>(null)
 const messagesContainer = ref<HTMLElement | null>(null)
+const showWazzupInfo = ref(false)
 
 // Эмитим событие когда контейнер сообщений готов
 onMounted(() => {
@@ -512,7 +630,75 @@ watch(() => props.selectedChat, (newChat) => {
 const confirm = useConfirm()
 const toast = useToast()
 
-// Функции для получения имен и инициалов
+// Режим разработки больше не влияет на вывод DEBUG в интерфейсе
+const isDev = computed(() => false)
+
+// Функции для получения имен и инициалов чата
+const getClientDisplayName = (chat: Chat) => {
+  // Если есть имя клиента в объекте client, показываем его
+  if (chat.client?.name && chat.client.name.trim()) {
+    return chat.client.name
+  }
+  
+  // Если есть имя клиента в старом формате, показываем его
+  if (chat.client_name && chat.client_name.trim()) {
+    return chat.client_name
+  }
+  
+  // Если есть заголовок чата, показываем его
+  if (chat.title && chat.title.trim()) {
+    return chat.title
+  }
+  
+  // Если нет имени, но есть номер телефона в объекте client, показываем его
+  if (chat.client?.phone && chat.client.phone.trim()) {
+    return chat.client.phone
+  }
+  
+  // Если нет имени, но есть номер телефона в старом формате, показываем его
+  if (chat.client_phone && chat.client_phone.trim()) {
+    return chat.client_phone
+  }
+  
+  // Если есть телефон мессенджера, показываем его
+  if (chat.messenger_phone && chat.messenger_phone.trim()) {
+    return chat.messenger_phone
+  }
+  
+  // Если есть email клиента, показываем его
+  if (chat.client?.email && chat.client.email.trim()) {
+    return chat.client.email
+  }
+  
+  if (chat.client_email && chat.client_email.trim()) {
+    return chat.client_email
+  }
+  
+  // Если нет ни имени, ни телефона, ни email, показываем ID чата
+  return `Чат #${chat.id}`
+}
+
+const getClientInitial = (chat: Chat) => {
+  const displayName = getClientDisplayName(chat)
+  
+  if (!displayName) return '?'
+
+  // Если это номер телефона, берем последнюю цифру
+  if (/^\+?[0-9]+$/.test(displayName)) {
+    return displayName.slice(-1)
+  }
+
+  // Если это email, берем первую букву до @
+  if (displayName.includes('@')) {
+    const emailName = displayName.split('@')[0]
+    return emailName.charAt(0).toUpperCase()
+  }
+
+  // Если это имя, берем первую букву
+  return displayName.charAt(0).toUpperCase()
+}
+
+// Функции для получения имен и инициалов сообщений
 const getClientName = (message: Message) => {
   if (props.selectedChat?.client_name) {
     return props.selectedChat.client_name
@@ -520,7 +706,7 @@ const getClientName = (message: Message) => {
   return message.user?.name || 'Клиент'
 }
 
-const getClientInitial = (message: Message) => {
+const getMessageClientInitial = (message: Message) => {
   const name = getClientName(message)
   return name.charAt(0).toUpperCase()
 }
@@ -634,6 +820,63 @@ const handleInput = (event: Event) => {
   adjustTextareaHeight()
 }
 
+// Получить превью сообщения для цитаты
+const getMessagePreview = (message: Message) => {
+  if (message.type === 'image') return '📷 Изображение'
+  if (message.type === 'video') return '🎥 Видео'
+  if (message.type === 'audio') return '🎵 Голосовое сообщение'
+  if (message.type === 'document' || message.type === 'file') return '📄 ' + (message.file_name || 'Документ')
+  return message.message || 'Сообщение'
+}
+
+// Прокрутка к сообщению
+const scrollToMessageId = (messageId: number) => {
+  nextTick(() => {
+    const messageElement = messagesContainer.value?.querySelector(`[data-message-id="${messageId}"]`)
+    if (messageElement) {
+      messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      // Подсветка сообщения
+      messageElement.classList.add('highlight-message')
+      setTimeout(() => {
+        messageElement.classList.remove('highlight-message')
+      }, 2000)
+    }
+  })
+}
+
+// Обработчик вставки эмодзи
+const handleEmojiInsert = (emoji: string) => {
+  if (!messageInput.value) {
+    // Если нет ссылки на textarea, просто добавляем в конец
+    const currentText = props.newMessage || messageText.value
+    const newText = currentText + emoji
+    messageText.value = newText
+    emit('update:newMessage', newText)
+    return
+  }
+
+  const textarea = messageInput.value
+  const start = textarea.selectionStart || 0
+  const end = textarea.selectionEnd || 0
+
+  const currentText = props.newMessage || messageText.value
+  const beforeText = currentText.substring(0, start)
+  const afterText = currentText.substring(end)
+
+  const newText = beforeText + emoji + afterText
+  messageText.value = newText
+  emit('update:newMessage', newText)
+
+  nextTick(() => {
+    if (messageInput.value) {
+      messageInput.value.focus()
+      const newPosition = start + emoji.length
+      messageInput.value.setSelectionRange(newPosition, newPosition)
+      adjustTextareaHeight()
+    }
+  })
+}
+
 // Автоматическое изменение высоты textarea
 const adjustTextareaHeight = () => {
   nextTick(() => {
@@ -647,7 +890,10 @@ const adjustTextareaHeight = () => {
 // Отправка сообщения
 const handleSendMessage = () => {
   const currentMessage = props.newMessage || messageText.value
-  if (!currentMessage.trim() || props.sendingMessage) return
+  
+  if (!currentMessage.trim() || props.sendingMessage) {
+    return
+  }
 
   // Эмитим событие отправки сообщения
   emit('sendMessage')
@@ -711,7 +957,9 @@ const emit = defineEmits([
   'openImagePreview',
   'update:newMessage',
   'chatClosed',
-  'containerReady'
+  'containerReady',
+  'replyTo',
+  'cancelReply'
 ])
 
 // Методы для отображения статусов доставки
@@ -822,4 +1070,49 @@ const getImageGroupStyle = (images: Message[], index: number) => {
   }
   return ''
 }
+
+// Функция для принудительного скачивания файла
+const handleDownloadFile = async (message: Message) => {
+  try {
+    const fileUrl = message.file_path || (message.metadata as any)?.audio_url || (message.metadata as any)?.file_path
+    if (!fileUrl) {
+      console.error('Нет URL файла для скачивания')
+      return
+    }
+    
+    const response = await fetch(fileUrl)
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = message.file_name || 'file'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('Ошибка скачивания файла:', error)
+    // Fallback: открыть в новой вкладке
+    const fileUrl = message.file_path || (message.metadata as any)?.audio_url
+    if (fileUrl) {
+      window.open(fileUrl, '_blank')
+    }
+  }
+}
 </script>
+
+<style scoped>
+/* Анимация подсветки цитируемого сообщения */
+:deep(.highlight-message) {
+  animation: highlight 2s ease-in-out;
+}
+
+@keyframes highlight {
+  0%, 100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: rgba(59, 130, 246, 0.2);
+  }
+}
+</style>

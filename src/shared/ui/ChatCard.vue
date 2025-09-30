@@ -8,12 +8,12 @@
       <div class="chat-card__header">
         <Avatar
           :image="chat.client_avatar"
-          :label="chat.client_name.charAt(0)"
+          :label="getClientInitial(chat)"
           size="large"
           class="chat-card__avatar"
         />
         <div class="chat-card__info">
-          <h4 class="chat-card__name">{{ chat.client_name }}</h4>
+          <h4 class="chat-card__name">{{ getClientDisplayName(chat) }}</h4>
           <p class="chat-card__phone">{{ chat.client_phone }}</p>
         </div>
         <div class="chat-card__meta">
@@ -90,6 +90,47 @@ const getStatusSeverity = (status: string) => {
     pending: 'warning'
   }
   return severityMap[status] || 'info'
+}
+
+// Функция для получения отображаемого имени клиента
+const getClientDisplayName = (chat: Chat) => {
+  // Если есть имя клиента в объекте client, показываем его
+  if (chat.client?.name && chat.client.name.trim()) {
+    return chat.client.name
+  }
+  
+  // Если есть имя клиента в старом формате, показываем его
+  if (chat.client_name && chat.client_name.trim()) {
+    return chat.client_name
+  }
+  
+  // Если нет имени, но есть номер телефона в объекте client, показываем его
+  if (chat.client?.phone && chat.client.phone.trim()) {
+    return chat.client.phone
+  }
+  
+  // Если нет имени, но есть номер телефона в старом формате, показываем его
+  if (chat.client_phone && chat.client_phone.trim()) {
+    return chat.client_phone
+  }
+  
+  // Если нет ни имени, ни телефона, показываем ID чата
+  return `Чат #${chat.id}`
+}
+
+// Функция для получения инициалов клиента
+const getClientInitial = (chat: Chat) => {
+  const displayName = getClientDisplayName(chat)
+  
+  if (!displayName) return '?'
+
+  // Если это номер телефона, берем последнюю цифру
+  if (/^\+?[0-9]+$/.test(displayName)) {
+    return displayName.slice(-1)
+  }
+
+  // Если это имя, берем первую букву
+  return displayName.charAt(0).toUpperCase()
 }
 </script>
 

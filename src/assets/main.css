@@ -183,154 +183,182 @@ input[type="checkbox"] {
    PRIMEVUE CONFIRM DIALOG СТИЛИ
    ======================================== */
 
-/* Основной контейнер диалога */
-.p-confirm-dialog {
-  background: rgba(0, 0, 0, 0.5) !important;
+/* Оверлей (затемненный фон) */
+.p-dialog-mask {
+  background: rgba(0, 0, 0, 0.6) !important;
   backdrop-filter: blur(4px) !important;
 }
 
+/* Основной контейнер диалога */
+.p-confirm-dialog {
+  background: transparent !important;
+}
+
 /* Модальное окно */
-.p-confirm-dialog .p-dialog {
+.p-confirm-dialog .p-dialog,
+.p-dialog.p-confirm-dialog {
   background: white !important;
   border-radius: 12px !important;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.1) !important;
   border: none !important;
-  max-width: 400px !important;
+  max-width: 450px !important;
   width: 90% !important;
+  margin: 1.5rem !important;
 }
 
 /* Темная тема для модального окна */
-.dark .p-confirm-dialog .p-dialog {
+.dark .p-confirm-dialog .p-dialog,
+.dark .p-dialog.p-confirm-dialog {
   background: #1f2937 !important;
   color: white !important;
 }
 
 /* Заголовок диалога */
-.p-confirm-dialog .p-dialog-header {
-  background: transparent !important;
+.p-confirm-dialog .p-dialog-header,
+.p-dialog.p-confirm-dialog .p-dialog-header {
+  background: white !important;
   border-bottom: 1px solid #e5e7eb !important;
-  padding: 1.5rem !important;
+  padding: 1.25rem 1.5rem !important;
   border-radius: 12px 12px 0 0 !important;
 }
 
-.dark .p-confirm-dialog .p-dialog-header {
+.dark .p-confirm-dialog .p-dialog-header,
+.dark .p-dialog.p-confirm-dialog .p-dialog-header {
+  background: #1f2937 !important;
   border-bottom-color: #374151 !important;
 }
 
-.p-confirm-dialog .p-dialog-title {
+.p-confirm-dialog .p-dialog-title,
+.p-dialog.p-confirm-dialog .p-dialog-title {
   font-size: 1.125rem !important;
   font-weight: 600 !important;
   color: #111827 !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.75rem !important;
 }
 
-.dark .p-confirm-dialog .p-dialog-title {
+.dark .p-confirm-dialog .p-dialog-title,
+.dark .p-dialog.p-confirm-dialog .p-dialog-title {
   color: white !important;
 }
 
-/* Иконка предупреждения */
-.p-confirm-dialog .p-dialog-title::before {
-  content: "⚠️";
-  font-size: 1.25rem;
-  width: 2.5rem;
-  height: 2.5rem;
-  background: #fef3c7;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.dark .p-confirm-dialog .p-dialog-title::before {
-  background: #451a03;
+/* Иконка в заголовке */
+.p-confirm-dialog .p-dialog-header .p-dialog-header-icon,
+.p-dialog.p-confirm-dialog .p-dialog-header-icon {
+  color: #f59e0b !important;
+  font-size: 1.5rem !important;
+  margin-right: 0.75rem !important;
 }
 
 /* Содержимое диалога */
-.p-confirm-dialog .p-dialog-content {
+.p-confirm-dialog .p-dialog-content,
+.p-dialog.p-confirm-dialog .p-dialog-content {
   padding: 1.5rem !important;
-  background: transparent !important;
+  background: white !important;
 }
 
-.p-confirm-dialog .p-confirm-dialog-message {
-  color: #6b7280 !important;
-  font-size: 0.875rem !important;
-  line-height: 1.5 !important;
+.dark .p-confirm-dialog .p-dialog-content,
+.dark .p-dialog.p-confirm-dialog .p-dialog-content {
+  background: #1f2937 !important;
+}
+
+.p-confirm-dialog .p-confirm-dialog-message,
+.p-dialog.p-confirm-dialog .p-confirm-dialog-message {
+  color: #4b5563 !important;
+  font-size: 0.9375rem !important;
+  line-height: 1.6 !important;
   margin: 0 !important;
 }
 
-.dark .p-confirm-dialog .p-confirm-dialog-message {
+.dark .p-confirm-dialog .p-confirm-dialog-message,
+.dark .p-dialog.p-confirm-dialog .p-confirm-dialog-message {
   color: #d1d5db !important;
 }
 
 /* Подвал с кнопками */
-.p-confirm-dialog .p-dialog-footer {
-  background: transparent !important;
+.p-confirm-dialog .p-dialog-footer,
+.p-dialog.p-confirm-dialog .p-dialog-footer {
+  background: white !important;
   border-top: 1px solid #e5e7eb !important;
-  padding: 1.5rem !important;
+  padding: 1.25rem 1.5rem !important;
   display: flex !important;
   justify-content: flex-end !important;
   gap: 0.75rem !important;
   border-radius: 0 0 12px 12px !important;
 }
 
-.dark .p-confirm-dialog .p-dialog-footer {
+.dark .p-confirm-dialog .p-dialog-footer,
+.dark .p-dialog.p-confirm-dialog .p-dialog-footer {
+  background: #1f2937 !important;
   border-top-color: #374151 !important;
 }
 
 /* Кнопки */
-.p-confirm-dialog .p-button {
+.p-confirm-dialog .p-button,
+.p-dialog.p-confirm-dialog .p-button {
   border-radius: 8px !important;
   font-weight: 500 !important;
   font-size: 0.875rem !important;
-  padding: 0.625rem 1rem !important;
+  padding: 0.625rem 1.25rem !important;
   transition: all 0.2s ease !important;
   border: none !important;
 }
 
 /* Кнопка отмены */
-.p-confirm-dialog .p-button.p-button-secondary {
-  background: #f9fafb !important;
+.p-confirm-dialog .p-button.p-button-secondary,
+.p-dialog.p-confirm-dialog .p-button.p-button-secondary {
+  background: #f3f4f6 !important;
   color: #374151 !important;
   border: 1px solid #d1d5db !important;
 }
 
-.p-confirm-dialog .p-button.p-button-secondary:hover {
-  background: #f3f4f6 !important;
+.p-confirm-dialog .p-button.p-button-secondary:hover,
+.p-dialog.p-confirm-dialog .p-button.p-button-secondary:hover {
+  background: #e5e7eb !important;
   border-color: #9ca3af !important;
 }
 
-.dark .p-confirm-dialog .p-button.p-button-secondary {
+.dark .p-confirm-dialog .p-button.p-button-secondary,
+.dark .p-dialog.p-confirm-dialog .p-button.p-button-secondary {
   background: #374151 !important;
   color: #d1d5db !important;
   border-color: #4b5563 !important;
 }
 
-.dark .p-confirm-dialog .p-button.p-button-secondary:hover {
+.dark .p-confirm-dialog .p-button.p-button-secondary:hover,
+.dark .p-dialog.p-confirm-dialog .p-button.p-button-secondary:hover {
   background: #4b5563 !important;
   border-color: #6b7280 !important;
 }
 
 /* Кнопка подтверждения */
-.p-confirm-dialog .p-button:not(.p-button-secondary) {
+.p-confirm-dialog .p-button:not(.p-button-secondary),
+.p-dialog.p-confirm-dialog .p-button:not(.p-button-secondary) {
   background: #ef4444 !important;
   color: white !important;
 }
 
-.p-confirm-dialog .p-button:not(.p-button-secondary):hover {
+.p-confirm-dialog .p-button:not(.p-button-secondary):hover,
+.p-dialog.p-confirm-dialog .p-button:not(.p-button-secondary):hover {
   background: #dc2626 !important;
 }
 
+/* Иконка в диалоге */
+.p-confirm-dialog .p-confirm-dialog-icon,
+.p-dialog.p-confirm-dialog .p-confirm-dialog-icon {
+  font-size: 2rem !important;
+  color: #f59e0b !important;
+  margin-right: 1rem !important;
+}
+
 /* Анимации */
-.p-confirm-dialog .p-dialog {
-  animation: dialogSlideIn 0.3s ease-out !important;
+.p-confirm-dialog .p-dialog,
+.p-dialog.p-confirm-dialog {
+  animation: dialogSlideIn 0.25s ease-out !important;
 }
 
 @keyframes dialogSlideIn {
   from {
     opacity: 0;
-    transform: translateY(-20px) scale(0.95);
+    transform: translateY(-30px) scale(0.9);
   }
   to {
     opacity: 1;
@@ -340,7 +368,8 @@ input[type="checkbox"] {
 
 /* Адаптивность */
 @media (max-width: 640px) {
-  .p-confirm-dialog .p-dialog {
+  .p-confirm-dialog .p-dialog,
+  .p-dialog.p-confirm-dialog {
     margin: 1rem !important;
     max-width: none !important;
     width: calc(100% - 2rem) !important;
@@ -348,7 +377,16 @@ input[type="checkbox"] {
 
   .p-confirm-dialog .p-dialog-header,
   .p-confirm-dialog .p-dialog-content,
-  .p-confirm-dialog .p-dialog-footer {
+  .p-confirm-dialog .p-dialog-footer,
+  .p-dialog.p-confirm-dialog .p-dialog-header,
+  .p-dialog.p-confirm-dialog .p-dialog-content,
+  .p-dialog.p-confirm-dialog .p-dialog-footer {
     padding: 1rem !important;
+  }
+  
+  .p-confirm-dialog .p-confirm-dialog-icon,
+  .p-dialog.p-confirm-dialog .p-confirm-dialog-icon {
+    font-size: 1.5rem !important;
+    margin-right: 0.75rem !important;
   }
 }

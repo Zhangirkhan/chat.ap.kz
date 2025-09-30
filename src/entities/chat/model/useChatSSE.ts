@@ -50,8 +50,17 @@ export function useChatSSE() {
               break
             case 'new_message':
               // Вызываем callback для нового сообщения
-              if (messageCallback.value && data.message) {
-                messageCallback.value(data.message)
+              if (messageCallback.value) {
+                // Принимаем как вложенное data.message, так и плоский payload
+                const payload = data.message ?? data
+                messageCallback.value(payload)
+              }
+              break
+            case 'message':
+            case 'chat_message':
+              if (messageCallback.value) {
+                const payload = data.message ?? data
+                messageCallback.value(payload)
               }
               break
             default:

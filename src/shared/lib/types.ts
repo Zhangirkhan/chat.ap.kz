@@ -43,17 +43,39 @@ export interface UserStats {
 
 export interface Chat {
   id: number
-  client_name: string
-  client_phone: string
-  client_email?: string
+  title?: string
+  type?: string
   status: 'active' | 'closed' | 'transferred'
+  status_label?: string
+  status_severity?: string
+  is_messenger_chat?: boolean
+  messenger_phone?: string
+  messenger_status?: string
+  unread_count: number
+  last_activity_at?: string
+  client_name?: string
+  client_phone?: string
+  client_email?: string
+  client?: {
+    id: number
+    name: string
+    phone: string
+    email?: string
+    is_active: boolean
+    status: string
+    status_label: string
+    status_severity: string
+    created_at: string
+    updated_at: string
+  }
+  department?: Department
+  assigned_to?: User
   created_at: string
   updated_at: string
   user?: User
   assigned_user?: User
   messages: Message[]
   messages_count?: number
-  unread_count: number
   last_message?: Message
 }
 

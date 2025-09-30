@@ -60,7 +60,12 @@ export const organizationApi = {
   },
 
   // Настройка webhook'ов Wazzup24
-  setupWazzupWebhooks: (organizationId: number): Promise<ApiResponse<{success: boolean, error?: string}>> => {
-    return apiClient.post(`${API_CONFIG.ENDPOINTS.ORGANIZATIONS}/${organizationId}/wazzup24/setup-webhooks`, {})
+  setupWazzupWebhooks: (organizationId: number, data?: { webhook_url?: string; subscriptions?: Record<string, boolean> }): Promise<ApiResponse<{success: boolean, error?: string}>> => {
+    return apiClient.post(`${API_CONFIG.ENDPOINTS.ORGANIZATIONS}/${organizationId}/wazzup24/setup-webhooks`, data || {})
+  },
+
+  // Получить текущие настройки webhooks в Wazzup24
+  getWazzupWebhooksStatus: (organizationId: number): Promise<ApiResponse<{success: boolean, data?: any, error?: string}>> => {
+    return apiClient.get(`${API_CONFIG.ENDPOINTS.ORGANIZATIONS}/${organizationId}/wazzup24/webhooks-status`)
   }
 }

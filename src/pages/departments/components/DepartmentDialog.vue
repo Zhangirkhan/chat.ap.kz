@@ -173,8 +173,8 @@ const initForm = () => {
     Object.assign(form, {
       name: props.department.name || '',
       description: props.department.description || '',
-      organization_id: props.department.organization_id || '',
-      status: props.department.status || 'active',
+      organization_id: props.department.organization_id || props.department.organization?.id || '',
+      status: props.department.status || (props.department.is_active ? 'active' : 'inactive') || 'active',
       show_in_chatbot: props.department.show_in_chatbot || false,
       chatbot_order: props.department.chatbot_order || 1
     })
@@ -198,8 +198,7 @@ const handleSubmit = async () => {
       name: form.name,
       description: form.description ?? '',
       organization_id: Number(form.organization_id),
-      // @ts-expect-error: для create поле может отсутствовать в типе
-      status: form.status,
+      is_active: form.status === 'active',
       show_in_chatbot: form.show_in_chatbot,
       chatbot_order: form.chatbot_order
     }

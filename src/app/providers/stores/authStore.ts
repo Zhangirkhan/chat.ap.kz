@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
-import { authApi } from '../api/authApi'
+import { authApi } from '@/features/auth/api/authApi'
 import { apiClient } from '@/shared/api/client'
 import { useOrganizationStore } from '@/entities/organization'
 

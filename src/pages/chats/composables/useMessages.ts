@@ -1,4 +1,4 @@
-import { ref, nextTick, watch } from 'vue'
+import { ref, nextTick, watch, computed } from 'vue'
 import { chatApi } from '@/entities/chat/api/chatApi'
 import type { Message } from '@/shared/lib/types'
 import { useToast } from 'primevue/usetoast'
@@ -12,22 +12,47 @@ export function useMessages() {
   const messagesContainer = ref<HTMLElement | null>(null)
   const scrollTimeout = ref<number | null>(null)
 
+  // Computed для системных сообщений
+  const systemMessages = computed(() => 
+    messages.value.filter(m => m.type === 'system')
+  )
+
+  // Computed для обычных сообщений (не системных)
+  const regularMessages = computed(() => 
+    messages.value.filter(m => m.type !== 'system')
+  )
+
   const loadChatMessages = async (chatId: number) => {
     try {
-
       const response = await chatApi.getChatMessages(chatId, {
         per_page: 100
       })
 
-
       if (response.data && Array.isArray(response.data)) {
-        messages.value = response.data.reverse()
+        // Сортируем сообщения по времени создания с учетом миллисекунд
+        messages.value = response.data.sort((a, b) => {
+          const timeA = new Date(a.created_at).getTime()
+          const timeB = new Date(b.created_at).getTime()
+          return timeA - timeB
+        })
+        if (import.meta.env.DEV && import.meta.env.VITE_DEBUG_MESSAGES === 'true') {
+          console.log('Loaded messages:', messages.value)
+          console.log('System messages:', systemMessages.value)
+        }
       } else if (Array.isArray(response)) {
-        messages.value = response.reverse()
+        // Сортируем сообщения по времени создания с учетом миллисекунд
+        messages.value = response.sort((a, b) => {
+          const timeA = new Date(a.created_at).getTime()
+          const timeB = new Date(b.created_at).getTime()
+          return timeA - timeB
+        })
+        if (import.meta.env.DEV && import.meta.env.VITE_DEBUG_MESSAGES === 'true') {
+          console.log('Loaded messages:', messages.value)
+          console.log('System messages:', systemMessages.value)
+        }
       } else {
         messages.value = []
       }
-
 
     } catch (err) {
       messages.value = []
@@ -191,6 +216,8 @@ export function useMessages() {
 
   return {
     messages,
+    systemMessages,
+    regularMessages,
     sendingMessage,
     newMessage,
     messagesContainer,

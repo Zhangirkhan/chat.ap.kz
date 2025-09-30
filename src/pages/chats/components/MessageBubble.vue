@@ -37,6 +37,7 @@
             :message="message" 
             :messages="messages"
             :is-from-client="true"
+            :selected-chat="selectedChat"
             @open-image-preview="$emit('openImagePreview', $event)"
           />
         </div>
@@ -61,10 +62,10 @@
             :message="message" 
             :messages="messages"
             :is-from-client="false"
+            :selected-chat="selectedChat"
             @open-image-preview="$emit('openImagePreview', $event)"
           />
         </div>
-        <MessageStatus :message="message" :is-from-client="false" />
       </div>
     </div>
   </div>
@@ -76,7 +77,6 @@ import { useMessageFormatting } from '@/shared/composables/useMessageFormatting'
 import MessageAvatar from './MessageAvatar.vue'
 import MessageUserInfo from './MessageUserInfo.vue'
 import MessageContent from './MessageContent.vue'
-import MessageStatus from './MessageStatus.vue'
 
 interface Props {
   message: Message

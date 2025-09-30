@@ -1,27 +1,27 @@
 <template>
   <Dialog
     v-model:visible="isOpen"
-    :modal="config.modal"
-    :closable="config.closable"
-    :draggable="config.draggable"
-    :resizable="config.resizable"
-    :maximizable="config.maximizable"
-    :position="config.position"
+    :modal="safeConfig.modal"
+    :closable="safeConfig.closable"
+    :draggable="safeConfig.draggable"
+    :resizable="safeConfig.resizable"
+    :maximizable="safeConfig.maximizable"
+    :position="safeConfig.position"
     :style="{ 
-      width: config.width, 
-      height: config.height 
+      width: safeConfig.width, 
+      height: safeConfig.height 
     }"
     :class="dialogClass"
     @hide="onHide"
   >
     <!-- Заголовок -->
-    <template v-if="config.showHeader" #header>
+    <template v-if="safeConfig.showHeader" #header>
       <div class="flex items-center justify-between w-full">
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white m-0">
           {{ title }}
         </h3>
         <button
-          v-if="config.closable"
+          v-if="safeConfig.closable"
           @click="close"
           class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
         >
@@ -40,21 +40,21 @@
     </div>
     
     <!-- Футер -->
-    <template v-if="config.showFooter" #footer>
+    <template v-if="safeConfig.showFooter" #footer>
       <slot name="footer">
         <div class="flex justify-end gap-3">
           <Button
-            :label="config.cancelLabel"
-            :icon="config.cancelIcon"
-            :severity="config.cancelSeverity"
+            :label="safeConfig.cancelLabel"
+            :icon="safeConfig.cancelIcon"
+            :severity="safeConfig.cancelSeverity"
             @click="onCancel"
             :disabled="loading"
             class="p-button-text"
           />
           <Button
-            :label="config.confirmLabel"
-            :icon="config.confirmIcon"
-            :severity="config.confirmSeverity"
+            :label="safeConfig.confirmLabel"
+            :icon="safeConfig.confirmIcon"
+            :severity="safeConfig.confirmSeverity"
             @click="onConfirm"
             :loading="loading"
             :disabled="loading"
@@ -66,6 +66,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useDialog } from '@/shared/composables/useDialog'
 
 interface Props {
@@ -87,6 +88,27 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>()
 
 const { isOpen, config, loading, close } = useDialog(props.name)
+
+// Безопасная конфигурация по умолчанию
+const safeConfig = computed(() => ({
+  modal: true,
+  closable: true,
+  draggable: false,
+  resizable: false,
+  maximizable: false,
+  position: 'center',
+  width: '480px',
+  height: undefined as string | undefined,
+  showHeader: true,
+  showFooter: true,
+  cancelLabel: 'Отмена',
+  cancelIcon: 'pi pi-times',
+  cancelSeverity: 'secondary',
+  confirmLabel: 'ОК',
+  confirmIcon: 'pi pi-check',
+  confirmSeverity: 'primary',
+  ...(config.value || {})
+}))
 
 const onConfirm = () => {
   emit('confirm')

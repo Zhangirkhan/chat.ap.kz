@@ -45,9 +45,12 @@
     </div>
 
     <!-- Индикатор загрузки файла -->
-    <div v-if="uploadingFile" class="mt-3 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-      <i class="pi pi-spin pi-spinner"></i>
-      <span>Загрузка файла...</span>
+    <div v-if="uploadingFile" class="mt-3 flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+      <div class="relative w-5 h-5">
+        <div class="absolute inset-0 rounded-full border-2 border-blue-200 dark:border-blue-700"></div>
+        <div class="absolute inset-0 rounded-full border-2 border-transparent border-t-blue-500 animate-spin"></div>
+      </div>
+      <span class="text-sm font-medium text-blue-700 dark:text-blue-300">Загрузка файлов...</span>
     </div>
   </div>
 </template>

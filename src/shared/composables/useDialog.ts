@@ -1,5 +1,5 @@
 import { computed } from 'vue'
-import { useDialogStore, type DialogConfig } from '@/stores/dialogStore'
+import { useDialogStore, type DialogConfig } from '@/app/providers/stores/dialogStore'
 
 export function useDialog(dialogName: string) {
   const dialogStore = useDialogStore()

@@ -44,7 +44,7 @@ export function useOptimizedChats() {
       loading.value = true
       error.value = null
 
-      const response = await chatApi.getChats({ per_page: 100 })
+      const response = await chatApi.getChats({ per_page: 50 })
       const chatData = Array.isArray(response.data) ? response.data : []
       
       chats.value = chatData
@@ -155,6 +155,45 @@ export function useOptimizedChats() {
     await loadChats()
     await sse.connect()
     sse.startHeartbeatMonitor()
+
+    // Подписка на создание нового чата (появляется без перезагрузки)
+    const unsubCreated = sse.subscribe('chat_created', (data: any) => {
+      const chat = data?.chat || data
+      if (!chat || !chat.id) return
+      // Не добавляем дубликаты
+      if (!chats.value.find(c => c.id === chat.id)) {
+        addChatToList(chat as Chat)
+      }
+    })
+
+    // Глобальная подписка на новые сообщения для обновления непрочитанных
+    const unsubChatMsg = sse.subscribe('chat_message', (data: any) => {
+      const chatId = data?.chat_id || data?.chat?.id
+      const message: any = data?.message
+      if (!chatId || !message) return
+
+      const index = chats.value.findIndex(c => c.id === chatId)
+      if (index === -1) {
+        // Если чата нет в списке, и сервер прислал объект чата, добавим
+        if (data?.chat && data.chat.id) {
+          addChatToList(data.chat as Chat)
+        }
+        return
+      }
+
+      // Увеличиваем счётчик непрочитанных для входящих сообщений
+      if (message.is_from_client) {
+        const current = chats.value[index].unread_count || 0
+        chats.value[index] = { ...chats.value[index], unread_count: current + 1 }
+        // Обновляем кэш
+        const cacheKey = 'chats-list'
+        chatCache.set(cacheKey, chats.value)
+      }
+    })
+
+    // Сохраняем отписки
+    unreadSubscriptions.value.set(-1, unsubCreated as unknown as () => void)
+    messageSubscriptions.value.set(-1, unsubChatMsg as unknown as () => void)
   })
 
   // Очистка при размонтировании
@@ -162,6 +201,8 @@ export function useOptimizedChats() {
     // Отписываемся от всех сообщений
     messageSubscriptions.value.forEach(unsubscribe => unsubscribe())
     messageSubscriptions.value.clear()
+    unreadSubscriptions.value.forEach(unsubscribe => unsubscribe())
+    unreadSubscriptions.value.clear()
     
     // Отключаем SSE
     sse.disconnect()

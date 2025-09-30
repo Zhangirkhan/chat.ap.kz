@@ -59,6 +59,11 @@ export const chatApi = {
     return apiClient.put(`${API_CONFIG.ENDPOINTS.CHATS}/${id}`, data)
   },
 
+  // Удаление чата
+  deleteChat: (id: number): Promise<ApiResponse<null>> => {
+    return apiClient.delete(`${API_CONFIG.ENDPOINTS.CHATS}/${id}`)
+  },
+
   // Завершение чата
   endChat: (id: number): Promise<ApiResponse<Chat>> => {
     return apiClient.post(`${API_CONFIG.ENDPOINTS.CHATS}/${id}/end`)
@@ -86,22 +91,31 @@ export const chatApi = {
   },
 
   // Отправка сообщения
-  sendMessage: (chatId: number, data: SendMessageData): Promise<ApiResponse<Message>> => {
+  sendMessage: (chatId: number, data: SendMessageData & {reply_to_message_id?: number}): Promise<ApiResponse<Message>> => {
     // Если есть файл, используем FormData
     if (data.file) {
       const formData = new FormData()
       formData.append('message', data.message || '')
       formData.append('type', data.type || 'text')
       formData.append('file', data.file)
+      if (data.reply_to_message_id) {
+        formData.append('reply_to_message_id', data.reply_to_message_id.toString())
+      }
 
       return apiClient.post(`${API_CONFIG.ENDPOINTS.CHATS}/${chatId}/send`, formData)
     }
 
     // Для текстовых сообщений используем JSON
-    return apiClient.post(`${API_CONFIG.ENDPOINTS.CHATS}/${chatId}/send`, {
+    const payload: any = {
       message: data.message,
       type: data.type || 'text'
-    })
+    }
+    
+    if (data.reply_to_message_id) {
+      payload.reply_to_message_id = data.reply_to_message_id
+    }
+    
+    return apiClient.post(`${API_CONFIG.ENDPOINTS.CHATS}/${chatId}/send`, payload)
   },
 
   // Отправка медиа через Wazzup24

@@ -1,5 +1,5 @@
 <template>
-  <div class="mb-1 text-xs flex items-center gap-2" :class="textClasses">
+  <div class="mb-0.5 text-xs flex items-center gap-2" :class="textClasses">
     <span v-if="isFromClient" class="font-medium">{{ getClientName() }}</span>
     <span v-else class="font-medium">{{ getStaffName() }}</span>
     <span>{{ formatTime(message.created_at) }}</span>

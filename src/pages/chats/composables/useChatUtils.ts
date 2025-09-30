@@ -57,6 +57,10 @@ export function useChatUtils() {
         return 'Картинка'
       case 'video':
         return 'Видео'
+      case 'audio':
+        return 'Аудио'
+      case 'document':
+        return 'Документ'
       case 'file':
         return 'Документ'
       default:
@@ -72,6 +76,10 @@ export function useChatUtils() {
         return 'pi pi-image text-purple-500'
       case 'video':
         return 'pi pi-video text-red-500'
+      case 'audio':
+        return 'pi pi-volume-up text-green-500'
+      case 'document':
+        return 'pi pi-file text-blue-500'
       case 'file':
         return 'pi pi-file text-blue-500'
       default:

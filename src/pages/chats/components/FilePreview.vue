@@ -2,13 +2,13 @@
   <!-- Модальное окно превью файлов -->
   <div
     v-if="props.isOpen"
-    class="fixed inset-0 bg-black bg-opacity-90 z-50 flex flex-col minimal-scrollbar"
+    class="fixed inset-0 bg-black bg-opacity-90 z-[9999] flex flex-col minimal-scrollbar"
     :class="{ 'pointer-events-none': sending }"
   >
     <!-- Полноэкранный индикатор загрузки -->
     <div
       v-if="sending"
-      class="absolute inset-0 bg-black bg-opacity-70 z-60 flex items-center justify-center pointer-events-auto"
+      class="absolute inset-0 bg-black bg-opacity-70 z-[10000] flex items-center justify-center pointer-events-auto"
     >
       <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-2xl max-w-sm mx-4">
         <div class="flex flex-col items-center text-center">

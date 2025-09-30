@@ -2,14 +2,20 @@
   <div>
     <TextMessage v-if="message.type === 'text'" :message="message" />
     <ImageMessage 
-      v-else-if="message.type === 'image' && message.file_path" 
+      v-else-if="message.type === 'image' && (message.file_path || message.metadata?.file_path)" 
       :message="message" 
       :messages="messages"
       :is-from-client="isFromClient"
+      :selected-chat="selectedChat"
       @open-image-preview="$emit('openImagePreview', $event)"
     />
     <VideoMessage 
       v-else-if="message.type === 'video' && message.file_path" 
+      :message="message" 
+      :is-from-client="isFromClient"
+    />
+    <AudioMessage 
+      v-else-if="message.type === 'audio'" 
       :message="message" 
       :is-from-client="isFromClient"
     />
@@ -47,6 +53,7 @@ interface Props {
   message: Message
   messages: Message[]
   isFromClient: boolean
+  selectedChat?: any
 }
 
 const props = defineProps<Props>()
@@ -72,6 +79,7 @@ const getUnknownTypeText = () => {
   switch (props.message.type) {
     case 'image': return '📷 Изображение'
     case 'video': return '🎥 Видео'
+    case 'audio': return '🎵 Аудио'
     case 'document': return '📄 Документ'
     case 'file': return '📄 Файл'
     default: return '📎 Вложение'
